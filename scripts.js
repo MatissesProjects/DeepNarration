@@ -3,36 +3,40 @@ function addTextbox(containerId) {
     var container = document.getElementById(containerId);
     var newTextbox = document.createElement('input');
     newTextbox.type = 'text';
+    newTextbox.value = 'person in a chair'
     container.appendChild(newTextbox);
     container.appendChild(document.createElement("br"));
 }
 
-document.getElementById("myForm").addEventListener("submit", function(event) {
+function submitForm(event) {
     event.preventDefault(); // Prevent the default form submission
 
-    var formData = new FormData(this); // Create a new FormData object
-
-    // Iterate over the additional textboxes in scenes-container
     var scenesTextboxes = document.querySelectorAll("#scenes-container input[type='text']");
-    scenesTextboxes.forEach(function(textbox) {
-        formData.append("scenes", textbox.value); // Append each textbox value with the name "scenes"
+    var scenesData = scenesTextboxes.forEach(textbox => {
+        var formData = {
+            prompt: textbox.value//.concat(imagesData)
+        };
+        fetch("http://127.0.0.1:5001/getImages", {
+            method: "POST",
+            body: JSON.stringify(formData),
+            headers: {
+                "Content-Type": "application/json"
+            }
+        })
+        .then(response => {
+            // Handle the response as needed
+            console.log(response.json())
+        })
+        .catch(error => {
+            // Handle any errors
+        });
     });
 
-    // Iterate over the additional textboxes in images-container
-    var imagesTextboxes = document.querySelectorAll("#images-container input[type='text']");
-    imagesTextboxes.forEach(function(textbox) {
-        formData.append("images", textbox.value); // Append each textbox value with the name "images"
-    });
+    // var imagesTextboxes = document.querySelectorAll("#images-container input[type='text']");
+    // var imagesData = Array.from(imagesTextboxes).map(function(textbox) {
+    //     return textbox.value;
+    // });
 
-    // Perform the form submission with the updated form data
-    fetch("/submit", {
-        method: "POST",
-        body: formData
-    })
-    .then(response => {
-        // Handle the response as needed
-    })
-    .catch(error => {
-        // Handle any errors
-    });
-});
+
+    // Perform the AJAX request to send the data
+}
