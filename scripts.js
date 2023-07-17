@@ -17,7 +17,7 @@ function submitForm(event) {
         var formData = {
             prompt: textbox.value//.concat(imagesData)
         };
-        getImages(formData, true)
+        getImages(formData, useDummy)
         .then(response => console.log(response))
         .catch(error => console.error(error));
     });
