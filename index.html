@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Add Textboxes</title>
+    <link rel="stylesheet" type="text/css" href="styles.css">
+    <script src="scripts.js"></script>
+</head>
+<body>
+    <form id="myForm" action="/submit" method="POST">
+        <div>
+            <label for="scenes">Scenes:</label>
+            <div id="scenes-container" class="textbox-container">
+                <script>addTextbox('scenes-container')</script>
+            </div>
+            <button onclick="addTextbox('scenes-container')" type="button">+</button>
+        </div>
+
+        <div>
+            <label for="images">Images:</label>
+            <div id="images-container" class="textbox-container">
+                <script>addTextbox('images-container')</script>
+            </div>
+            <button onclick="addTextbox('images-container')" type="button">+</button>
+        </div>
+
+        <button type="submit">Submit</button>
+    </form>
+</body>
+</html>
