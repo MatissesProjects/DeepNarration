@@ -13,7 +13,6 @@ function addTextbox(containerId) {
     container.appendChild(document.createElement("br"));
 }
 
-
 function submitForm(event) {
     event.preventDefault(); // Prevent the default form submission
 
@@ -23,6 +22,12 @@ function submitForm(event) {
     var imagesData = []
     var promises = []
     var index = 1
+    var videoBlock = document.getElementById("videoBlock")
+    var audioBlock = document.getElementById("audioBlock")
+
+    videoBlock.onplay = () => {audioBlock.currentTime = 0;audioBlock.play()}
+    videoBlock.onpause = () => audioBlock.pause()
+
     scenesTextboxes.forEach(textbox => {
         var formData = {
             prompt: textbox.value
@@ -36,27 +41,35 @@ function submitForm(event) {
     })
     var audioSource = document.createElement("source")
     audioSource.src = `https://api.streamelements.com/kappa/v2/speech?voice=en-US-Wavenet-A&text=${textToSay}`
-    document.getElementById("audioBlock").appendChild(audioSource)
-    // .then( response =>{
+    audioSource.type = 'audio/mp3'
+
+    audioBlock.appendChild(audioSource)
+    audioBlock.load()
+    audioBlock.volume = 0
+    audioBlock.play()
+
     // start call into deforum
     Promise.all(promises).then( _ => {
-        var imageObj = {}
-        imagesData
         var formData = {
             prompt: "{"+positivePrompt.join(", ")+"}",
             images: "{"+imagesData.map((images, idx) => `"${idx}": ["${images.join("\",\"")}"]`)+"}"
         };
         console.log(formData);
         getVideo(formData, useDummy)
-        .then(videoData => videoData.text())
-        .then(text => {
-            var videoSource = document.createElement("source")
-            var matches = text.match(/\/(\d+)\./)
-            videoSource.src = `http://localhost:5050/output/${matches[1]}.mp4`
-            document.getElementById("videoBlock").appendChild(videoSource)
-            // document.getElementById("gifDiv").src = `http://localhost:5050/output/${matches[1]}.gif`
-
-        })
+            .then(videoData => videoData.text())
+            .then(text => {
+                var videoSource = document.createElement("source")
+                var matches = text.match(/\/(\d+)\./)
+                videoSource.src = `http://localhost:5050/output/${matches[1]}.mp4`
+                let durationPromise = new Promise(resolve => {
+                    videoBlock.addEventListener('loadedmetadata', () => resolve(videoBlock.duration))
+                })
+                videoBlock.appendChild(videoSource)
+                videoBlock.load()
+                audioBlock.hidden = false
+                audioBlock.volume = 1
+                durationPromise.then(videoDuration => videoBlock.playbackRate = videoDuration / audioBlock.duration)
+        });
     });
     // var imagesTextboxes = document.querySelectorAll("#images-container input[type='text']");
 }
