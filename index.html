@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Add Textboxes</title>
+    <title>Deep Narration</title>
     <link rel="stylesheet" type="text/css" href="styles.css">
     <script src="localVariables.js"></script>
     <script src="scripts.js"></script>
@@ -10,19 +10,19 @@
     <form id="myForm" onsubmit="submitForm(event)">
         <div>
             <label for="scenes">Scenes:</label>
-            <div id="scenes-container" class="textbox-container">
+            <div id="scenes-container" name="scenes" class="textbox-container">
                 <script>addTextbox('scenes-container')</script>
             </div>
             <button onclick="addTextbox('scenes-container')" type="button">+</button>
         </div>
 
-        <div>
+        <!-- <div>
             <label for="images">Images:</label>
             <div id="images-container" class="textbox-container">
                 <script>addTextbox('images-container')</script>
             </div>
             <button onclick="addTextbox('images-container')" type="button">+</button>
-        </div>
+        </div> -->
 
         <button type="submit">Submit</button>
     </form>
