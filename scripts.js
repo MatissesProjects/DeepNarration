@@ -1,6 +1,7 @@
 let maxWords = 75;
 let VIDEO_PAGE = 'videoPage'
 let INPUT_PAGE = 'inputPage'
+let LOADING_PAGE = 'loadingPage'
 
 // Function to add a new textbox dynamically
 function addTextbox(containerId) {
@@ -31,17 +32,31 @@ function addTextbox(containerId) {
 function navagate(page) {
     let sceneInputPage = document.getElementById("myForm")
     let videoOutputPage = document.getElementById("videoPage")
+    let loaderPage = document.getElementById("loadingPage")
+    let pageMap = {}
+    pageMap[INPUT_PAGE] = sceneInputPage
+    pageMap[VIDEO_PAGE] = videoOutputPage
+    pageMap[LOADING_PAGE] = loaderPage
+    hideList = Object.keys(pageMap).filter((value) => value != page)
 
-    if(page == INPUT_PAGE) {
-        sceneInputPage.hidden = false
-        videoOutputPage.hidden = true
-    } else if(page == VIDEO_PAGE) {
-        sceneInputPage.hidden = true
-        videoOutputPage.hidden = false
-    }
+    console.log(`hideList: ${hideList}`)
+    let nextPage = pageMap[page]
+    nextPage.classList.remove('hidden');
+
+    hideList.forEach(it => {
+        pageMap[it].classList.add('hidden')
+    })
+
+    setTimeout(() => {
+        hideList.forEach(it => {
+            pageMap[it].hidden = true
+        })
+        nextPage.hidden = false
+    }, 400);
 }
 
 function submitForm(event) {
+    navagate(LOADING_PAGE)
     event.preventDefault(); // Prevent the default form submission
 
     var scenesTextboxes = document.querySelectorAll("#scenes-container input[type='text']");

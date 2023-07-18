@@ -7,13 +7,13 @@
     <script src="scripts.js"></script>
 </head>
 <body>
-    <form id="myForm" onsubmit="submitForm(event)">
+    <form id="myForm" class="page" onsubmit="submitForm(event)">
         <div>
             <h1>Scenes:</h1>
+            <button onclick="addTextbox('scenes-container')" type="button" class="fab">+</button>
             <div id="scenes-container" name="scenes" class="textbox-container">
                 <script>addTextbox('scenes-container')</script>
             </div>
-            <button onclick="addTextbox('scenes-container')" type="button" class="fab">+</button>
         </div>
 
         <!-- <div>
@@ -27,10 +27,13 @@
         <button type="submit">Submit</button>
     </form>
     <!-- <img id="gifDiv"></img> -->
-    <div id="videoPage" hidden="true">
+    <div id="videoPage" class="page hidden" hidden="true">
         <video width="512" height="512" id="videoBlock" controls></video>
         <audio id="audioBlock"controls></audio>
-        <button id="goBack" onclick="navagate('inputPage')"></button>
+        <button id="goBack" onclick="navagate('inputPage')">Back</button>
+    </div>
+    <div id="loadingPage" class="page hidden" hidden="true">
+        <div class="loader"></div>
     </div>
 </body>
 </html>
