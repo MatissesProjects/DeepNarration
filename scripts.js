@@ -32,6 +32,9 @@ function submitForm(event) {
                       .then(response => {console.log(response);imagesData.push(response)})
                       .catch(error => console.error(error)));
     })
+    var audioSource = document.createElement("source")
+    audioSource.src = `https://api.streamelements.com/kappa/v2/speech?voice=en-US-Wavenet-A&text=this is currently working, isnt that great`
+    document.getElementById("audioBlock").appendChild(audioSource)
     // .then( response =>{
     // start call into deforum
     Promise.all(promises).then( _ => {
@@ -45,8 +48,12 @@ function submitForm(event) {
         getVideo(formData, useDummy)
         .then(videoData => videoData.text())
         .then(text => {
-            document.getElementById("gifDiv").innerText = text
-            document.getElementById("videoBlock").innerText = text
+            var videoSource = document.createElement("source")
+            var matches = text.match(/\/(\d+)\./)
+            videoSource.src = `http://localhost:5050/output/${matches[1]}.mp4`
+            document.getElementById("videoBlock").appendChild(videoSource)
+            // document.getElementById("gifDiv").src = `http://localhost:5050/output/${matches[1]}.gif`
+
         })
     });
     // var imagesTextboxes = document.querySelectorAll("#images-container input[type='text']");
