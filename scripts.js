@@ -1,13 +1,19 @@
 // Function to add a new textbox dynamically
 function addTextbox(containerId) {
     var container = document.getElementById(containerId);
-    var newTextbox = document.createElement('input');
-    newTextbox.type = 'text';
+    var newTextbox = document.createElement('textarea');
+    newTextbox.type = 'textarea';
 
     // Array of random strings
     var randomStrings = ['person in a chair', 'landscape with mountains', 'still life with fruits', 'abstract artwork'];
     var randomIndex = Math.floor(Math.random() * randomStrings.length);
     newTextbox.value = randomStrings[randomIndex];
+    newTextbox.style.height = "26px"
+
+    newTextbox.oninput = function() {
+        this.style.height = "5px";
+        this.style.height = (this.scrollHeight)+"px";
+    }
 
     container.appendChild(newTextbox);
     container.appendChild(document.createElement("br"));
@@ -25,7 +31,10 @@ function submitForm(event) {
     var videoBlock = document.getElementById("videoBlock")
     var audioBlock = document.getElementById("audioBlock")
 
-    videoBlock.onplay = () => {audioBlock.currentTime = 0;audioBlock.play()}
+    videoBlock.onplay = () => {
+        audioBlock.currentTime = 0;
+        audioBlock.play()
+    }
     videoBlock.onpause = () => audioBlock.pause()
 
     scenesTextboxes.forEach(textbox => {
