@@ -19,6 +19,7 @@ function submitForm(event) {
 
     var scenesTextboxes = document.querySelectorAll("#scenes-container input[type='text']");
     var positivePrompt = []
+    var textToSay = ''
     var imagesData = []
     var promises = []
     var index = 1
@@ -27,13 +28,14 @@ function submitForm(event) {
             prompt: textbox.value
         };
         positivePrompt.push(`"${index}": "${textbox.value}"`)
+        textToSay += textbox.value + " "
         index++
         promises.push(getImages(formData, useDummy)
                       .then(response => {console.log(response);imagesData.push(response)})
                       .catch(error => console.error(error)));
     })
     var audioSource = document.createElement("source")
-    audioSource.src = `https://api.streamelements.com/kappa/v2/speech?voice=en-US-Wavenet-A&text=this is currently working, isnt that great`
+    audioSource.src = `https://api.streamelements.com/kappa/v2/speech?voice=en-US-Wavenet-A&text=${textToSay}`
     document.getElementById("audioBlock").appendChild(audioSource)
     // .then( response =>{
     // start call into deforum
