@@ -9,11 +9,11 @@
 <body>
     <form id="myForm" onsubmit="submitForm(event)">
         <div>
-            <label for="scenes">Scenes:</label>
+            <h1>Scenes:</h1>
             <div id="scenes-container" name="scenes" class="textbox-container">
                 <script>addTextbox('scenes-container')</script>
             </div>
-            <button onclick="addTextbox('scenes-container')" type="button">+</button>
+            <button onclick="addTextbox('scenes-container')" type="button" class="fab">+</button>
         </div>
 
         <!-- <div>
@@ -27,7 +27,10 @@
         <button type="submit">Submit</button>
     </form>
     <!-- <img id="gifDiv"></img> -->
-    <video width="512" height="512" controls id="videoBlock"></video>
-    <audio id="audioBlock" controls hidden="true"></audio>
+    <div id="videoPage" hidden="true">
+        <video width="512" height="512" id="videoBlock" controls></video>
+        <audio id="audioBlock"controls></audio>
+        <button id="goBack" onclick="navagate('inputPage')"></button>
+    </div>
 </body>
 </html>

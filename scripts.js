@@ -1,3 +1,7 @@
+let maxWords = 75;
+let VIDEO_PAGE = 'videoPage'
+let INPUT_PAGE = 'inputPage'
+
 // Function to add a new textbox dynamically
 function addTextbox(containerId) {
     var container = document.getElementById(containerId);
@@ -13,10 +17,28 @@ function addTextbox(containerId) {
     newTextbox.oninput = function() {
         this.style.height = "5px";
         this.style.height = (this.scrollHeight)+"px";
+        let words = this.value.split(' ');
+        if (words.length > maxWords) {
+            this.value = words.slice(0, maxWords).join(' ');
+            alert('You have reached the word limit.');
+        }
     }
 
     container.appendChild(newTextbox);
     container.appendChild(document.createElement("br"));
+}
+
+function navagate(page) {
+    let sceneInputPage = document.getElementById("myForm")
+    let videoOutputPage = document.getElementById("videoPage")
+
+    if(page == INPUT_PAGE) {
+        sceneInputPage.hidden = false
+        videoOutputPage.hidden = true
+    } else if(page == VIDEO_PAGE) {
+        sceneInputPage.hidden = true
+        videoOutputPage.hidden = false
+    }
 }
 
 function submitForm(event) {
@@ -30,6 +52,8 @@ function submitForm(event) {
     var index = 1
     var videoBlock = document.getElementById("videoBlock")
     var audioBlock = document.getElementById("audioBlock")
+    let sceneInputPage = document.getElementById("myForm")
+    let videoOutputPage = document.getElementById("videoPage")
 
     videoBlock.onplay = () => {
         audioBlock.currentTime = 0;
@@ -75,7 +99,7 @@ function submitForm(event) {
                 })
                 videoBlock.appendChild(videoSource)
                 videoBlock.load()
-                audioBlock.hidden = false
+                navagate(VIDEO_PAGE)
                 audioBlock.volume = 1
                 durationPromise.then(videoDuration => videoBlock.playbackRate = videoDuration / audioBlock.duration)
         });
