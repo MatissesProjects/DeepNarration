@@ -12,6 +12,7 @@ body {
 h1 {
     color: #01579B; /* Light Blue 900 */
     margin: 5px 0px;
+    float: left;
 }
 
 button {
@@ -35,6 +36,21 @@ button {
     border-radius: 50%;
     border: none;
     font-size: 24px;
+    float: left;
+}
+
+.loader {
+    border: 16px solid #f3f3f3; /* Light grey */
+    border-top: 16px solid #3498db; /* Blue */
+    border-radius: 50%;
+    width: 120px;
+    height: 120px;
+    animation: spin 2s linear infinite;
+  }
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
 }
 
 textarea {
@@ -67,4 +83,13 @@ video {
     width: 100%;
     border-radius: 4px;
     box-shadow: 0 2px 2px 0 rgba(0, 0, 0, 0.14), 0 1px 5px 0 rgba(0, 0, 0, 0.12), 0 3px 1px -2px rgba(0, 0, 0, 0.2);
+}
+
+.page {
+    transition: opacity 0.5s ease;
+}
+
+.hidden {
+    opacity: 0;
+    pointer-events: none;
 }
