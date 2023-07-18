@@ -59,22 +59,15 @@ function submitForm(event) {
     navagate(LOADING_PAGE)
     event.preventDefault(); // Prevent the default form submission
 
-    var scenesTextboxes = document.querySelectorAll("#scenes-container input[type='text']");
+    var scenesTextboxes = document.querySelectorAll("#scenes-container textarea");
     var positivePrompt = []
     var textToSay = ''
     var imagesData = []
     var promises = []
     var index = 1
     var videoBlock = document.getElementById("videoBlock")
-    var audioBlock = document.getElementById("audioBlock")
     let sceneInputPage = document.getElementById("myForm")
     let videoOutputPage = document.getElementById("videoPage")
-
-    videoBlock.onplay = () => {
-        audioBlock.currentTime = 0;
-        audioBlock.play()
-    }
-    videoBlock.onpause = () => audioBlock.pause()
 
     scenesTextboxes.forEach(textbox => {
         var formData = {
@@ -87,14 +80,6 @@ function submitForm(event) {
                       .then(response => {console.log(response);imagesData.push(response)})
                       .catch(error => console.error(error)));
     })
-    var audioSource = document.createElement("source")
-    audioSource.src = `https://api.streamelements.com/kappa/v2/speech?voice=en-US-Wavenet-A&text=${textToSay}`
-    audioSource.type = 'audio/mp3'
-
-    audioBlock.appendChild(audioSource)
-    audioBlock.load()
-    audioBlock.volume = 0
-    audioBlock.play()
 
     // start call into deforum
     Promise.all(promises).then( _ => {
@@ -108,15 +93,28 @@ function submitForm(event) {
             .then(text => {
                 var videoSource = document.createElement("source")
                 var matches = text.match(/\/(\d+)\./)
-                videoSource.src = `http://localhost:5050/output/${matches[1]}.mp4`
+                videoSource.src = `http://localhost:5050/output/${matches[1]}.mp4`;
                 let durationPromise = new Promise(resolve => {
                     videoBlock.addEventListener('loadedmetadata', () => resolve(videoBlock.duration))
                 })
                 videoBlock.appendChild(videoSource)
                 videoBlock.load()
                 navagate(VIDEO_PAGE)
-                audioBlock.volume = 1
-                durationPromise.then(videoDuration => videoBlock.playbackRate = videoDuration / audioBlock.duration)
+                durationPromise.then(videoDuration => {
+                    fetch("http://127.0.0.1:5001/get_final_video", {
+                        method: "POST",
+                        body: JSON.stringify({videoUri:matches[1],
+                                              promptDataString:textToSay,
+                                              videoDuration:videoDuration}),
+                        headers: {"Content-Type": "application/json"}
+                    })
+                .then(response => response.text())
+                .then(text => {
+                    videoSource.src = `http://localhost:5050/output/${matches[1]}.mp4`;
+                    videoBlock.load();
+                    console.log(text);
+                })
+                })
         });
     });
     // var imagesTextboxes = document.querySelectorAll("#images-container input[type='text']");
