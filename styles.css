@@ -11,12 +11,12 @@ body {
 
 h1 {
     color: #01579B; /* Light Blue 900 */
-    margin: 5px 0px;
+    margin: 10px 10px;
     float: left;
 }
 
 button {
-    display: inline-block;
+    display: flex;
     padding: 20px;
     width: 100%;
     background-color: #0288D1; /* Light Blue 700 */
@@ -27,8 +27,15 @@ button {
     transition: background-color 0.3s ease;
 }
 
-.fab {
+.remove {
+    flex: 1
+}
+
+.flex {
     display: flex;
+}
+
+.fab {
     justify-content: center;
     align-items: center;
     width: 50px;
@@ -37,6 +44,10 @@ button {
     border: none;
     font-size: 24px;
     float: left;
+}
+
+.scenes {
+    width: 100%;
 }
 
 .loader {
@@ -54,8 +65,7 @@ button {
 }
 
 textarea {
-    display: block;
-    width: 100%;
+    flex: 9;
     padding: 10px;
     border: none;
     border-radius: 4px;

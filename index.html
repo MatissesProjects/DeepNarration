@@ -5,12 +5,15 @@
     <link rel="stylesheet" type="text/css" href="styles.css">
     <script src="localVariables.js"></script>
     <script src="scripts.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
 </head>
 <body>
     <form id="myForm" class="page" onsubmit="submitForm(event)">
         <div>
-            <h1>Scenes:</h1>
-            <button onclick="addTextbox('scenes-container')" type="button" class="fab">+</button>
+            <div class="scenes">
+                <button onclick="addTextbox('scenes-container')" type="button" class="fab">+</button>
+                <h1>Scenes:</h1>
+            </div>
             <div id="scenes-container" name="scenes" class="textbox-container">
                 <script>addTextbox('scenes-container')</script>
             </div>

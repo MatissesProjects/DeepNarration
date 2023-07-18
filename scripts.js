@@ -5,7 +5,9 @@ let LOADING_PAGE = 'loadingPage'
 
 // Function to add a new textbox dynamically
 function addTextbox(containerId) {
-    var container = document.getElementById(containerId);
+    var outerContainer = document.getElementById(containerId);
+    var container = document.createElement('div');
+    container.classList.add('flex')
     var newTextbox = document.createElement('textarea');
     newTextbox.type = 'textarea';
 
@@ -25,8 +27,20 @@ function addTextbox(containerId) {
         }
     }
 
+    let removeRow = document.createElement('button');
+    removeRow.classList.add('remove')
+    removeRow.innerText = 'Remove';
+
+    // Add an event listener to the button that removes the row when clicked
+    removeRow.addEventListener('click', function() {
+        newTextbox.remove();
+        removeRow.remove();
+    });
+
     container.appendChild(newTextbox);
-    container.appendChild(document.createElement("br"));
+    container.appendChild(removeRow);
+    
+    outerContainer.appendChild(container)
 }
 
 function navagate(page) {
