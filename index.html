@@ -3,13 +3,63 @@
 <head>
     <title>Deep Narration</title>
     <link rel="stylesheet" type="text/css" href="styles.css">
+    <link rel="shortcut icon" href="/static/favicon.png">
     <script src="localVariables.js"></script>
     <script src="scripts.js"></script>
+    <script>
+        function togglePeakDetection() {
+            var checkBox = document.getElementById("togglePeakDetection");
+            var text = document.getElementById("peakDetection");
+            var strength = document.getElementById("strengthDiv");
+            var strengthLabel = document.querySelector("label[for='togglePeakDetection']");
+            if (checkBox.checked == true){
+                text.style.display = "block";
+                strength.style.display = "none";
+                strengthLabel.textContent = "Use single strength value";
+            } else {
+                text.style.display = "none";
+                strength.style.display = "block";
+                strengthLabel.textContent = "Enable music peak detection for strength";
+            }
+        }
+    </script>
 </head>
 <body>
     <form id="myForm" class="page" onsubmit="submitForm(event)">
-        <div>
-            <h1>Scenes:</h1>
+        <div id="howToSection">
+            <button type="button" class="collapsible">Open How To Use</button>
+            <div class="content">
+                <h1>How To Use</h1>
+                <br>
+                <br>
+                <p>Add a few scenes and enter a story for them, a tts will be speaking them back, for now no voice controls.</p>
+                <p>If you want to remove a scene hit the - next to it (doesnt showup on mobile for now)</p>
+                <p>Run the process by clicking submit.</p>
+                <p>If you want to know the final length click get values, which will give you the final video length before creation</p>
+                <p>Scene length is currently limited to 75 words</p>
+            </div>
+            <button type="button" class="collapsible">Open Suggestion</button>
+            <div class="content">
+                <h1>Suggestion</h1>
+                <br>
+                <br>
+                <p>Any part you want to see a specific image of, make it its own scene the more descriptive the better</p>
+                <p>You can use the auto generated scenes, but they are pretty random.</p>
+                <p>A way to come up with a story is to ask for a short 3-6 scene story from chatgpt, it usually will give a longer one, so ask for it to be shortened, or just wait longer</p>
+                <p>If you want to check if the system is available currently going to discord to see if its in a run is the easiest way, ill add an indicator here soon</p>
+            </div>
+            <button type="button" class="collapsible">Open Notes</button>
+            <div class="content">
+                <h1>Notes</h1>
+                <br>
+                <br>
+                <p>now using dreamsharperxl10alpha2 and SD XL 1.0 refined for the deforum run</p>
+                <p>The system currently has only 1 node running the API with limited queing, so if someone else is using it the generation start after theirs is done</p>
+            </div>
+            <div style="display: flex; align-items: center;">
+                <h1>Scenes</h1>
+                <!-- <h1 style="margin-left: 20px;">Images</h1> -->
+            </div>
             <button onclick="addTextbox('scenes-container')" type="button" class="fab">+</button>
             <div id="scenes-container" name="scenes" class="textbox-container">
                 <script>addTextbox('scenes-container')</script>
@@ -23,16 +73,152 @@
             </div>
             <button onclick="addTextbox('images-container')" type="button">+</button>
         </div> -->
-
-        <button type="submit">Submit</button>
+        <div id="discordData">
+            <label for="additional-text">Optional - discord username:</label>
+            <input type="text" id="additional-text" name="additionalText" autocomplete="off">
+        </div>
+        <div>
+            <button type="submit" value="Submit">Submit</button>
+            <button type="submit" value="Get Values">Get Values</button>
+        </div>
     </form>
+    <p id="sceneLengthEstimate"></p>
+
     <!-- <img id="gifDiv"></img> -->
+    
+    <div id="strengthDiv">
+        <label for="strength">Strength value:</label>
+        <input type="number" id="strength" step="0.05" value=".70" max="1" min="0"><br>
+    </div>
+    <label for="togglePeakDetection">Toggle open to use music peak detection for strength</label>
+    <input type="checkbox" id="togglePeakDetection" onchange="togglePeakDetection()" style="margin-top: 20px; display: none;">
+    <div id="peakDetection" style="display: none;">
+        <h1>Peak Detection</h1>
+        <br><br>
+        <p>You are going to want to have your audio file be as close to the amount of time the generated video will be</p>
+        <p>To get the amount of time the generated video will be click the get values button above</p>
+        <input type="file" id="audioFile" accept=".wav,.mp3,.m4a,.ogg,.oga,.opus,.aac,.flac"><br>
+        <label for="minDesired">Min Desired value:</label>
+        <input type="number" id="minDesired" step="0.1" value=".85"><br>
+        <label for="maxDesired">Max Desired value:</label>
+        <input type="number" id="maxDesired" step="0.1" value=".45"><br>
+        
+        <button onclick="processAudio()">Process Audio</button>
+        <p id="output">Upload a file to start...</p>
+        <script>
+            function processAudio() {
+                let file = document.getElementById('audioFile').files[0];
+                let minDesired = parseFloat(document.getElementById('minDesired').value);
+                let maxDesired = parseFloat(document.getElementById('maxDesired').value);
+                
+                var textToSay = ''
+                var scenesTextboxes = document.querySelectorAll("#scenes-container textarea");
+                scenesTextboxes.forEach(textbox => {
+                    var promptData = textbox.value.replaceAll('"', '').replaceAll("'", '').replaceAll('\n', '')
+                    textToSay += textbox.value + " "
+                })
+                textToSay = textToSay.replaceAll('  ', ' ')
+                
+                if (!file) {
+                    document.getElementById('output').textContent = 'No file uploaded.';
+                    return;
+                }
+
+                let audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                let source = audioContext.createBufferSource();
+                
+                let reader = new FileReader();
+                reader.onload = function(ev) {
+                    audioContext.decodeAudioData(ev.target.result)
+                    .then(audioBuffer => {
+                        source.buffer = audioBuffer;
+                        console.log(textToSay);
+                        console.log(textToSay.split(" ").length-1);
+                        console.log(Math.ceil((textToSay.split(" ").length-1)/200*60*11.5));
+                        let peaks = detectPeaks(audioBuffer, Math.ceil((textToSay.split(" ").length-1)/200*60*11.5), minDesired, maxDesired);
+                        let output = processPeaks(peaks);//, amplitude, offset);
+                        document.getElementById('output').textContent = output;
+                    });
+                };
+                reader.readAsArrayBuffer(file);
+            }
+
+            function detectPeaks(audioBuffer, numberOfFrames, minDesired, maxDesired) {
+                let channelData = audioBuffer.getChannelData(0); // Assuming mono audio (1 channel)
+                let maxPeakValue = 0; // maxActual
+                let minPeakValue = Infinity; // minActual
+                let peaksArray = [];
+
+                // Find the maximum and minimum peak in the audio data
+                for(let i = 0; i < channelData.length; i++) {
+                    if(Math.abs(channelData[i]) > maxPeakValue) {
+                        maxPeakValue = Math.abs(channelData[i]);
+                    }
+                    if(Math.abs(channelData[i]) < minPeakValue) {
+                        minPeakValue = Math.abs(channelData[i]);
+                    }
+                }
+
+                let interval = Math.floor(channelData.length / numberOfFrames);
+
+                // Compute peaks data
+                for(let i = 0; i < channelData.length; i += interval) {
+                    let maxPeakInInterval = 0;
+                    for(let j = i; j < i + interval; j++) {
+                        if(Math.abs(channelData[j]) > maxPeakInInterval) {
+                            maxPeakInInterval = Math.abs(channelData[j]);
+                        }
+                    }
+
+                    // Rescale the normalized peak values to the desired range
+                    let rescaledPeak = minDesired + (maxPeakInInterval - minPeakValue) * (maxDesired - minDesired) / (maxPeakValue - minPeakValue);
+
+                    peaksArray.push(rescaledPeak);
+                }
+
+                return peaksArray;
+            }
+
+            
+            function processPeaks(peaks) {//, amplitude, offset
+                let output = peaks.map((peak, i) => `${i}:(${(peak).toFixed(4)})`).join(',');
+                return output;
+            }
+        </script>
+    </div>
+
     <div id="videoPage" class="page hidden" hidden="true">
-        <video width="512" height="512" id="videoBlock" controls></video>
+        <!-- <video width="512" height="512" id="videoBlock" controls></video> -->
+        <p>Check Discord for the video results <a href="https://discord.com/channels/799761313772863508/1131070890654834790">discord channel</a></p>
+        <p><a href="https://discord.com/invite/ZUMxF6q3EZ">discord invite</a></p>
+        <p id="resultTime">Time to get results</p>
+        <p>If you have any requests or questions feel free to message in the discord or directly</p>
         <button id="goBack" onclick="navagate('inputPage')">Back</button>
     </div>
     <div id="loadingPage" class="page hidden" hidden="true">
         <div class="loader"></div>
     </div>
+
+    <script>
+        // collapsible stuff
+        var coll = document.getElementsByClassName("collapsible");
+        var i;
+        
+        for (i = 0; i < coll.length; i++) {
+          coll[i].addEventListener("click", function() {
+            this.classList.toggle("active");
+            var content = this.nextElementSibling;
+            if (content.style.display === "block") {
+              content.style.display = "none";
+              this.textContent = "Open " + this.nextElementSibling.querySelector("h1").textContent;
+            } else {
+              content.style.display = "block";
+              this.textContent = "Close " + this.nextElementSibling.querySelector("h1").textContent;
+            }
+          });
+          coll[i].click()
+          coll[i].click()
+        }
+    </script>
 </body>
 </html>
