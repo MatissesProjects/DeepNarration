@@ -6,9 +6,16 @@ var peakDisplayed = false;
 
 // Function to add a new textbox dynamically
 function addTextbox(containerId) {
+    var initialText = "";
     var container = document.getElementById(containerId);
     var newTextbox = document.createElement('textarea');
     newTextbox.type = 'textarea';
+    newTextbox.onblur = () => {
+        if(newTextbox.value !== initialText) {
+            initialText = newTextbox.value
+            getTtsLength()
+        }
+    }
     var newDeleteSceneButton = document.createElement('button');
     newDeleteSceneButton.type = 'button';
     newDeleteSceneButton.textContent = "-";
@@ -67,36 +74,30 @@ function navagate(page) {
     }, 400);
 }
 
+function getTtsLength() {
+    var scenesTextboxes = document.querySelectorAll("#scenes-container textarea");
+    var textToSay = ''
+    scenesTextboxes.forEach(textbox => {
+        textToSay += textbox.value + " "
+    })
+    audioDuration = downloadTTSVoice({promptDataString:textToSay})
+    Promise.resolve(audioDuration).then( duration => {
+        document.getElementById("sceneLengthEstimate").textContent = `amount of time audio will take in seconds: ${duration}`
+    })
+}
+
 function submitForm(event) {
     event.preventDefault(); // Prevent the default form submission
     var discordName = document.querySelector("#additional-text").value
-    var scenesTextboxes = document.querySelectorAll("#scenes-container textarea");
-
-    
-    // var imagesTextboxes = document.querySelectorAll("#scenes-container .textbox-container-with-");
     var positivePrompt = []
-    var textToSay = ''
     var imagesData = []
     var promises = []
     var index = 1
-    var videoBlock = document.getElementById("videoBlock")
-    let sceneInputPage = document.getElementById("myForm")
-    let videoOutputPage = document.getElementById("videoPage")
     
-    scenesTextboxes.forEach(textbox => {
-        var promptData = textbox.value.replaceAll('"', '').replaceAll("'", '').replaceAll('\n', '')
-        textToSay += textbox.value + " "
-    })
-    
-    audioDuration = downloadTTSVoice({promptDataString:textToSay})
     switch (event.submitter.value)
     {
         case 'Enable peak detection for strength':
-            Promise.resolve(audioDuration).then( duration => {
-                document.getElementById("sceneLengthEstimate").textContent = `amount of time audio will take in seconds: ${duration}`
-                togglePeakDetectionFun()
-            })
-
+            togglePeakDetectionFun()
             break;
         case 'Submit':
             processAudio()
