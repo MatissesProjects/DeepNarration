@@ -105,44 +105,36 @@ function submitForm(event) {
                 navagate(VIDEO_PAGE)
             }, 1000);
             Promise.resolve(audioDuration).then( duration => {
-                // console.log(`amount of time audio will take in seconds: ${duration}`)
+                imagesForms = []
                 scenesTextboxes.forEach(textbox => {
                     var promptData = textbox.value.replaceAll('"', '').replaceAll("'", '').replaceAll('\n', '')
                     var formData = {
-                        prompt: promptData + ' <lora:offset_0.2:.2> beautiful, masterpiece, amazing'
+                        prompt: promptData + ' beautiful, masterpiece, amazing'
                     };
-                    positivePrompt.push(`"${index}": "${promptData}"`)
-                    // textToSay += textbox.value + " "
                     index++
-                    promises.push(getImages(formData, useDummy)
-                                .then(response => {console.log(response);imagesData.push(response)})
-                                .catch(error => console.error(error)));
-                })
-                var time = index * 6 + duration
-                startVideoMessage(time)
-                document.querySelector("#resultTime").textContent = `Generation should be done by ${Math.floor(time/60)} minutes and ${Math.floor(time - Math.floor(time/60)*60)} seconds.`
-                time = duration
-                document.querySelector("#sceneLengthEstimate").textContent = `Final results should be about ${Math.floor(time/60)} minutes and ${Math.floor(time - Math.floor(time/60)*60)} seconds.`
-                
+                    positivePrompt.push(`"${index}": "${promptData}"`)
+                    imagesForms.push(formData)
+                });
                 // check if there was an uploaded audio file
                 audioFileName = ''
                 if(document.querySelector("#audioFile").files.length > 0) {
                     uploadAudio(document.querySelector("#audioFile").files[0])
                     audioFileName = document.querySelector("#audioFile").files[0].name
                 }
-                // start call into deforum
-                Promise.all(promises).then( _ => {
-                    var formData = {
-                        prompt: "{"+positivePrompt.join(", ")+"}",
-                        images: "{"+imagesData.map((images, idx) => `"${idx}": ["${images.join("\",\"")}"]`)+"}",
-                        discordName: discordName,
-                        strength: strength,
-                        audioName: audioFileName
-                    };
-                    console.log(formData);
-                    getVideo(formData, useDummy)
-                    
-                })
+
+                let job ={  imagePrompts: imagesForms,
+                            discordName: discordName,
+                            strength: strength,
+                            audioName: audioFileName}
+                promises.push(getImages(job, useDummy)
+                                .then(response => {console.log(response);imagesData.push(response)})
+                                .catch(error => console.error(error)));
+
+                var time = index * 6 + duration
+                startVideoMessage(time)
+                document.querySelector("#resultTime").textContent = `Generation should be done by ${Math.floor(time/60)} minutes and ${Math.floor(time - Math.floor(time/60)*60)} seconds.`
+                time = duration
+                document.querySelector("#sceneLengthEstimate").textContent = `Final results should be about ${Math.floor(time/60)} minutes and ${Math.floor(time - Math.floor(time/60)*60)} seconds.`
             });
             // var imagesTextboxes = document.querySelectorAll("#images-container input[type='text']");
             break;
@@ -190,22 +182,6 @@ function getImages(formData, useDummy) {
             })
             .then(response => response.json())
     }
-}
-
-function getVideo(formData, useDummy) {
-    if(useDummy) {
-        return new Promise((resolve, reject) => {
-            resolve(new Response("here is a video of your story https://stablediffusion.matissetec.dev/output/20230717203754.mp4 and here is a (gif)[https://stablediffusion.matissetec.dev/output/20230717203754.gif] , please render the gif. this is just text"));
-        });
-    }
-    return fetch("https://imagegenerator.matissetec.dev/getVideo", {
-            method: "POST",
-            body: JSON.stringify(formData),
-            headers: {
-                "Content-Type": "application/json"
-            }
-        })
-        .catch(error => console.log("done but got an error, likely timing: " + error));
 }
 
 function uploadAudio(file) {
