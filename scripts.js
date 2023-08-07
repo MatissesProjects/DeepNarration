@@ -2,6 +2,7 @@ let maxWords = 75;
 let VIDEO_PAGE = 'videoPage'
 let INPUT_PAGE = 'inputPage'
 let LOADING_PAGE = 'loadingPage'
+var peakDisplayed = false;
 
 // Function to add a new textbox dynamically
 function addTextbox(containerId) {
@@ -70,12 +71,8 @@ function submitForm(event) {
     event.preventDefault(); // Prevent the default form submission
     var discordName = document.querySelector("#additional-text").value
     var scenesTextboxes = document.querySelectorAll("#scenes-container textarea");
-    var useAudioAsStrength = document.querySelector("#togglePeakDetection").checked
-    var strength = '0:('+document.querySelector("#strength").value+')'
-    var soundOutput = document.getElementById('output').textContent;
 
-    if(useAudioAsStrength) strength = soundOutput
-    console.log(strength);
+    
     // var imagesTextboxes = document.querySelectorAll("#scenes-container .textbox-container-with-");
     var positivePrompt = []
     var textToSay = ''
@@ -94,48 +91,61 @@ function submitForm(event) {
     audioDuration = downloadTTSVoice({promptDataString:textToSay})
     switch (event.submitter.value)
     {
-        case 'Get Values':
+        case 'Enable peak detection for strength':
             Promise.resolve(audioDuration).then( duration => {
                 document.getElementById("sceneLengthEstimate").textContent = `amount of time audio will take in seconds: ${duration}`
+                togglePeakDetectionFun()
             })
+
             break;
         case 'Submit':
+            processAudio()
+            var strength;
+            var soundOutput;
             navagate(LOADING_PAGE)
             setTimeout(() => {
+                strength = '0:('+document.querySelector("#strength").value+')'
+                soundOutput = document.getElementById('output').textContent;
                 navagate(VIDEO_PAGE)
-            }, 1000);
-            Promise.resolve(audioDuration).then( duration => {
-                imagesForms = []
-                scenesTextboxes.forEach(textbox => {
-                    var promptData = textbox.value.replaceAll('"', '').replaceAll("'", '').replaceAll('\n', '')
-                    var formData = {
-                        prompt: promptData + ' beautiful, masterpiece, amazing'
-                    };
-                    index++
-                    positivePrompt.push(`"${index}": "${promptData}"`)
-                    imagesForms.push(formData)
+             
+                if(peakDisplayed) strength = soundOutput
+                console.log(strength);
+                Promise.resolve(audioDuration).then( duration => {
+                    imagesForms = []
+                    scenesTextboxes.forEach(textbox => {
+                        var promptData = textbox.value.replaceAll('"', '').replaceAll("'", '').replaceAll('\n', '')
+                        var formData = {
+                            prompt: promptData + ' beautiful, masterpiece, amazing'
+                        };
+                        index++
+                        positivePrompt.push(`"${index}": "${promptData}"`)
+                        imagesForms.push(formData)
+                    });
+                    // check if there was an uploaded audio file
+                    audioFileName = ''
+                    if(document.querySelector("#audioFile").files.length > 0) {
+                        uploadAudio(document.querySelector("#audioFile").files[0])
+                        audioFileName = document.querySelector("#audioFile").files[0].name
+                    }
+
+                    let job ={  imagePrompts: imagesForms,
+                                discordName: discordName,
+                                strength: strength,
+                                audioName: audioFileName}
+                    promises.push(getImages(job, useDummy)
+                                    .then(response => {
+                                        console.log(response);
+                                        imagesData.push(response)
+                                    })
+                                    .catch(error => console.error(error)));
+
+                    var time = index * 6 + duration
+                    startVideoMessage(time)
+                    document.querySelector("#resultTime").textContent = `Generation should be done by ${Math.floor(time/60)} minutes and ${Math.floor(time - Math.floor(time/60)*60)} seconds.`
+                    time = duration
+                    document.querySelector("#sceneLengthEstimate").textContent = `Final results should be about ${Math.floor(time/60)} minutes and ${Math.floor(time - Math.floor(time/60)*60)} seconds.`
                 });
-                // check if there was an uploaded audio file
-                audioFileName = ''
-                if(document.querySelector("#audioFile").files.length > 0) {
-                    uploadAudio(document.querySelector("#audioFile").files[0])
-                    audioFileName = document.querySelector("#audioFile").files[0].name
-                }
-
-                let job ={  imagePrompts: imagesForms,
-                            discordName: discordName,
-                            strength: strength,
-                            audioName: audioFileName}
-                promises.push(getImages(job, useDummy)
-                                .then(response => {console.log(response);imagesData.push(response)})
-                                .catch(error => console.error(error)));
-
-                var time = index * 6 + duration
-                startVideoMessage(time)
-                document.querySelector("#resultTime").textContent = `Generation should be done by ${Math.floor(time/60)} minutes and ${Math.floor(time - Math.floor(time/60)*60)} seconds.`
-                time = duration
-                document.querySelector("#sceneLengthEstimate").textContent = `Final results should be about ${Math.floor(time/60)} minutes and ${Math.floor(time - Math.floor(time/60)*60)} seconds.`
-            });
+            }, 1500);
             // var imagesTextboxes = document.querySelectorAll("#images-container input[type='text']");
             break;
     }
@@ -180,7 +190,7 @@ function getImages(formData, useDummy) {
                     "Content-Type": "application/json"
                 }
             })
-            .then(response => response.json())
+            .then(response => response.text())
     }
 }
 
@@ -192,4 +202,97 @@ function uploadAudio(file) {
         method: "POST",
         body: formData
     });
+}
+
+function processAudio() {
+    let file = document.getElementById('audioFile').files[0];
+    let minDesired = parseFloat(document.getElementById('minDesired').value);
+    let maxDesired = parseFloat(document.getElementById('maxDesired').value);
+    
+    var textToSay = ''
+    var scenesTextboxes = document.querySelectorAll("#scenes-container textarea");
+    scenesTextboxes.forEach(textbox => {
+        var promptData = textbox.value.replaceAll('"', '').replaceAll("'", '').replaceAll('\n', '')
+        textToSay += textbox.value + " "
+    })
+    textToSay = textToSay.replaceAll('  ', ' ')
+    
+    if (!file) {
+        document.getElementById('output').textContent = 'No file uploaded.';
+        return;
+    }
+
+    let audioContext = new (window.AudioContext || window.webkitAudioContext)();
+    let source = audioContext.createBufferSource();
+    
+    let reader = new FileReader();
+    reader.onload = function(ev) {
+        audioContext.decodeAudioData(ev.target.result)
+        .then(audioBuffer => {
+            source.buffer = audioBuffer;
+            console.log(textToSay);
+            console.log(Math.ceil((textToSay.split(" ").length-1)/200*60*11.5));
+            let peaks = detectPeaks(audioBuffer, Math.ceil((textToSay.split(" ").length-1)/200*60*11.5), minDesired, maxDesired);
+            let output = processPeaks(peaks);
+            document.getElementById('output').textContent = output;
+        });
+    };
+    reader.readAsArrayBuffer(file);
+}
+
+function detectPeaks(audioBuffer, numberOfFrames, minDesired, maxDesired) {
+    let channelData = audioBuffer.getChannelData(0); // Assuming mono audio (1 channel)
+    let maxPeakValue = 0; // maxActual
+    let minPeakValue = Infinity; // minActual
+    let peaksArray = [];
+
+    // Find the maximum and minimum peak in the audio data
+    for(let i = 0; i < channelData.length; i++) {
+        if(Math.abs(channelData[i]) > maxPeakValue) {
+            maxPeakValue = Math.abs(channelData[i]);
+        }
+        if(Math.abs(channelData[i]) < minPeakValue) {
+            minPeakValue = Math.abs(channelData[i]);
+        }
+    }
+
+    let interval = Math.floor(channelData.length / numberOfFrames);
+
+    // Compute peaks data
+    for(let i = 0; i < channelData.length; i += interval) {
+        let maxPeakInInterval = 0;
+        for(let j = i; j < i + interval; j++) {
+            if(Math.abs(channelData[j]) > maxPeakInInterval) {
+                maxPeakInInterval = Math.abs(channelData[j]);
+            }
+        }
+
+        // Rescale the normalized peak values to the desired range
+        let rescaledPeak = minDesired + (maxPeakInInterval - minPeakValue) * (maxDesired - minDesired) / (maxPeakValue - minPeakValue);
+
+        peaksArray.push(rescaledPeak);
+    }
+
+    return peaksArray;
+}
+
+function processPeaks(peaks) {//, amplitude, offset
+    let output = peaks.map((peak, i) => `${i}:(${(peak).toFixed(4)})`).join(',');
+    return output;
+}
+
+function togglePeakDetectionFun() {
+    peakDisplayed = !peakDisplayed;
+    var text = document.getElementById("peakDetection");
+    var strength = document.getElementById("strengthDiv");
+    var strengthLabel = document.getElementById("peakButton");
+    if (peakDisplayed){
+        text.style.display = "block";
+        strength.style.display = "none";
+        strengthLabel.textContent = "Use single strength value";
+    } else {
+        text.style.display = "none";
+        strength.style.display = "block";
+        strengthLabel.textContent = "Enable music peak detection for strength";
+    }
 }

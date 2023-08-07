@@ -6,23 +6,6 @@
     <link rel="shortcut icon" href="/static/favicon.png">
     <script src="localVariables.js"></script>
     <script src="scripts.js"></script>
-    <script>
-        function togglePeakDetection() {
-            var checkBox = document.getElementById("togglePeakDetection");
-            var text = document.getElementById("peakDetection");
-            var strength = document.getElementById("strengthDiv");
-            var strengthLabel = document.querySelector("label[for='togglePeakDetection']");
-            if (checkBox.checked == true){
-                text.style.display = "block";
-                strength.style.display = "none";
-                strengthLabel.textContent = "Use single strength value";
-            } else {
-                text.style.display = "none";
-                strength.style.display = "block";
-                strengthLabel.textContent = "Enable music peak detection for strength";
-            }
-        }
-    </script>
 </head>
 <body>
     <form id="myForm" class="page" onsubmit="submitForm(event)">
@@ -33,9 +16,10 @@
                 <br>
                 <br>
                 <p>Add a few scenes and enter a story for them, a tts will be speaking them back, for now no voice controls.</p>
-                <p>If you want to remove a scene hit the - next to it (doesnt showup on mobile for now)</p>
+                <p>If you want to remove a scene hit the - next to it</p>
                 <p>Run the process by clicking submit.</p>
-                <p>If you want to know the final length click get values, which will give you the final video length before creation</p>
+                <p>If you want to have audio reactivity you can click the Enable music peak detection for strength. </p>
+                <p>This will give you the final length of the video, you need this value to match the music length entered. Either cut the audio, or change the scene</p>
                 <p>Scene length is currently limited to 75 words</p>
             </div>
             <button type="button" class="collapsible">Open Suggestion</button>
@@ -45,7 +29,7 @@
                 <br>
                 <p>Any part you want to see a specific image of, make it its own scene the more descriptive the better</p>
                 <p>You can use the auto generated scenes, but they are pretty random.</p>
-                <p>A way to come up with a story is to ask for a short 3-6 scene story from chatgpt, it usually will give a longer one, so ask for it to be shortened, or just wait longer</p>
+                <p>A way to come up with a story is to ask for a short 3-6 scene story from <a href="https://claude.ai/">claude.ai</a> you want the scenes to be 75 words max</p>
                 <p>If you want to check if the system is available currently going to discord to see if its in a run is the easiest way, ill add an indicator here soon</p>
             </div>
             <button type="button" class="collapsible">Open Notes</button>
@@ -78,114 +62,32 @@
             <input type="text" id="additional-text" name="additionalText" autocomplete="off">
         </div>
         <div>
-            <button type="submit" value="Submit">Submit</button>
-            <button type="submit" value="Get Values">Get Values</button>
+            <button type="submit" id="peakButton" value="Enable peak detection for strength">Enable peak detection for strength</button>
         </div>
+        <p id="sceneLengthEstimate"></p>
+        <div id="strengthDiv">
+            <label for="strength">Strength value:</label>
+            <input type="number" id="strength" step="0.05" value=".70" max="1" min="0"><br>
+        </div>
+        <div id="peakDetection" style="display: none;">
+            <h1>Peak Detection</h1>
+            <br><br>
+            <p>You are going to want to have your audio file be as close to the amount of time the generated video will be</p>
+            <p>To get the amount of time the generated video will be click the get values button above</p>
+            <!-- .wav,.mp3,.m4a,.ogg,.oga,.opus,.aac,.flac -->
+            <input type="file" id="audioFile" accept="audio/*" capture><br>
+            <label for="minDesired">Min Desired value:</label>
+            <input type="number" id="minDesired" step="0.1" value=".85"><br>
+            <label for="maxDesired">Max Desired value:</label>
+            <input type="number" id="maxDesired" step="0.1" value=".45"><br>
+            <p id="output">Upload a file to start...</p>
+        </div>
+        <button type="submit" value="Submit">Submit</button>
     </form>
-    <p id="sceneLengthEstimate"></p>
-
-    <!-- <img id="gifDiv"></img> -->
+    <!-- <button onclick="togglePeakDetectionFun()" id="togglePeakDetection">Toggle open to use music peak detection for strength</button> -->
+    <!-- <label for="togglePeakDetection">Toggle open to use music peak detection for strength</label>
+        <input type="checkbox" id="togglePeakDetection" onchange="togglePeakDetectionFun()" style="margin-top: 20px; display: none;"> -->
     
-    <div id="strengthDiv">
-        <label for="strength">Strength value:</label>
-        <input type="number" id="strength" step="0.05" value=".70" max="1" min="0"><br>
-    </div>
-    <label for="togglePeakDetection">Toggle open to use music peak detection for strength</label>
-    <input type="checkbox" id="togglePeakDetection" onchange="togglePeakDetection()" style="margin-top: 20px; display: none;">
-    <div id="peakDetection" style="display: none;">
-        <h1>Peak Detection</h1>
-        <br><br>
-        <p>You are going to want to have your audio file be as close to the amount of time the generated video will be</p>
-        <p>To get the amount of time the generated video will be click the get values button above</p>
-        <input type="file" id="audioFile" accept=".wav,.mp3,.m4a,.ogg,.oga,.opus,.aac,.flac"><br>
-        <label for="minDesired">Min Desired value:</label>
-        <input type="number" id="minDesired" step="0.1" value=".85"><br>
-        <label for="maxDesired">Max Desired value:</label>
-        <input type="number" id="maxDesired" step="0.1" value=".45"><br>
-        
-        <button onclick="processAudio()">Process Audio</button>
-        <p id="output">Upload a file to start...</p>
-        <script>
-            function processAudio() {
-                let file = document.getElementById('audioFile').files[0];
-                let minDesired = parseFloat(document.getElementById('minDesired').value);
-                let maxDesired = parseFloat(document.getElementById('maxDesired').value);
-                
-                var textToSay = ''
-                var scenesTextboxes = document.querySelectorAll("#scenes-container textarea");
-                scenesTextboxes.forEach(textbox => {
-                    var promptData = textbox.value.replaceAll('"', '').replaceAll("'", '').replaceAll('\n', '')
-                    textToSay += textbox.value + " "
-                })
-                textToSay = textToSay.replaceAll('  ', ' ')
-                
-                if (!file) {
-                    document.getElementById('output').textContent = 'No file uploaded.';
-                    return;
-                }
-
-                let audioContext = new (window.AudioContext || window.webkitAudioContext)();
-                let source = audioContext.createBufferSource();
-                
-                let reader = new FileReader();
-                reader.onload = function(ev) {
-                    audioContext.decodeAudioData(ev.target.result)
-                    .then(audioBuffer => {
-                        source.buffer = audioBuffer;
-                        console.log(textToSay);
-                        console.log(textToSay.split(" ").length-1);
-                        console.log(Math.ceil((textToSay.split(" ").length-1)/200*60*11.5));
-                        let peaks = detectPeaks(audioBuffer, Math.ceil((textToSay.split(" ").length-1)/200*60*11.5), minDesired, maxDesired);
-                        let output = processPeaks(peaks);//, amplitude, offset);
-                        document.getElementById('output').textContent = output;
-                    });
-                };
-                reader.readAsArrayBuffer(file);
-            }
-
-            function detectPeaks(audioBuffer, numberOfFrames, minDesired, maxDesired) {
-                let channelData = audioBuffer.getChannelData(0); // Assuming mono audio (1 channel)
-                let maxPeakValue = 0; // maxActual
-                let minPeakValue = Infinity; // minActual
-                let peaksArray = [];
-
-                // Find the maximum and minimum peak in the audio data
-                for(let i = 0; i < channelData.length; i++) {
-                    if(Math.abs(channelData[i]) > maxPeakValue) {
-                        maxPeakValue = Math.abs(channelData[i]);
-                    }
-                    if(Math.abs(channelData[i]) < minPeakValue) {
-                        minPeakValue = Math.abs(channelData[i]);
-                    }
-                }
-
-                let interval = Math.floor(channelData.length / numberOfFrames);
-
-                // Compute peaks data
-                for(let i = 0; i < channelData.length; i += interval) {
-                    let maxPeakInInterval = 0;
-                    for(let j = i; j < i + interval; j++) {
-                        if(Math.abs(channelData[j]) > maxPeakInInterval) {
-                            maxPeakInInterval = Math.abs(channelData[j]);
-                        }
-                    }
-
-                    // Rescale the normalized peak values to the desired range
-                    let rescaledPeak = minDesired + (maxPeakInInterval - minPeakValue) * (maxDesired - minDesired) / (maxPeakValue - minPeakValue);
-
-                    peaksArray.push(rescaledPeak);
-                }
-
-                return peaksArray;
-            }
-
-            
-            function processPeaks(peaks) {//, amplitude, offset
-                let output = peaks.map((peak, i) => `${i}:(${(peak).toFixed(4)})`).join(',');
-                return output;
-            }
-        </script>
-    </div>
 
     <div id="videoPage" class="page hidden" hidden="true">
         <!-- <video width="512" height="512" id="videoBlock" controls></video> -->
