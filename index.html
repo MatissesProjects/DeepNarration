@@ -56,14 +56,9 @@
                 <button onclick="addTextbox('images-container')" type="button">+</button>
             </div> -->
         </div>
-        <div id="discordData">
-            <label for="additional-text">Optional - discord username:</label>
-            <input type="text" id="additional-text" name="additionalText" autocomplete="off">
-        </div>
         <div>
             <button type="submit" id="peakButton" value="Enable peak detection for strength">Enable peak detection for strength</button>
         </div>
-        <p id="sceneLengthEstimate"></p>
         <div id="strengthDiv">
             <label for="strength">Strength value:</label>
             <input type="number" id="strength" step="0.01" value=".70" max="1" min="0"><br>
@@ -71,15 +66,19 @@
         <div id="peakDetection" style="display: none;">
             <h1>Peak Detection</h1>
             <br><br>
-            <p>You are going to want to have your audio file be as close to the amount of time the generated video will be</p>
-            <p>To get the amount of time the generated video will be click the get values button above</p>
+            <p id="sceneLengthEstimate"></p>
+            <p>in the future the option to clip the audio will be added</p>
             <!-- .wav,.mp3,.m4a,.ogg,.oga,.opus,.aac,.flac -->
             <input type="file" id="audioFile" accept="audio/*" capture><br>
             <label for="minDesired">Min Desired value:</label>
             <input type="number" id="minDesired" step="0.1" value=".85"><br>
             <label for="maxDesired">Max Desired value:</label>
             <input type="number" id="maxDesired" step="0.1" value=".45"><br>
-            <p id="output">Upload a file to start...</p>
+            <p id="output" hidden="true">Upload a file to start...</p>
+        </div>
+        <div id="discordData">
+            <label for="additional-text">Optional - discord username:</label>
+            <input type="text" id="additional-text" name="additionalText" autocomplete="off">
         </div>
         <button type="submit" value="Submit">Submit</button>
     </form>
