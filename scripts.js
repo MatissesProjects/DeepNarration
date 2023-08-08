@@ -9,6 +9,7 @@ function addTextbox(containerId) {
     var initialText = "";
     var container = document.getElementById(containerId);
     var newTextbox = document.createElement('textarea');
+    // var imagesTextboxes = document.querySelectorAll("#images-container input[type='text']");
     newTextbox.type = 'textarea';
     newTextbox.onblur = () => {
         if(newTextbox.value !== initialText) {
@@ -147,7 +148,6 @@ function submitForm(event) {
                     document.querySelector("#sceneLengthEstimate").textContent = `Final results should be about ${Math.floor(time/60)} minutes and ${Math.floor(time - Math.floor(time/60)*60)} seconds.`
                 });
             }, 1500);
-            // var imagesTextboxes = document.querySelectorAll("#images-container input[type='text']");
             break;
     }
 }
@@ -198,7 +198,6 @@ function getImages(formData, useDummy) {
 function uploadAudio(file) {
     let formData = new FormData();
     formData.append("audioFile", file);
-
     return fetch("https://imagegenerator.matissetec.dev/uploadAudio", {
         method: "POST",
         body: formData
@@ -209,11 +208,9 @@ function processAudio() {
     let file = document.getElementById('audioFile').files[0];
     let minDesired = parseFloat(document.getElementById('minDesired').value);
     let maxDesired = parseFloat(document.getElementById('maxDesired').value);
-    
     var textToSay = ''
     var scenesTextboxes = document.querySelectorAll("#scenes-container textarea");
     scenesTextboxes.forEach(textbox => {
-        var promptData = textbox.value.replaceAll('"', '').replaceAll("'", '').replaceAll('\n', '')
         textToSay += textbox.value + " "
     })
     textToSay = textToSay.replaceAll('  ', ' ')
@@ -270,14 +267,13 @@ function detectPeaks(audioBuffer, numberOfFrames, minDesired, maxDesired) {
 
         // Rescale the normalized peak values to the desired range
         let rescaledPeak = minDesired + (maxPeakInInterval - minPeakValue) * (maxDesired - minDesired) / (maxPeakValue - minPeakValue);
-
         peaksArray.push(rescaledPeak);
     }
 
     return peaksArray;
 }
 
-function processPeaks(peaks) {//, amplitude, offset
+function processPeaks(peaks) {
     let output = peaks.map((peak, i) => `${i}:(${(peak).toFixed(4)})`).join(',');
     return output;
 }
@@ -295,5 +291,26 @@ function togglePeakDetectionFun() {
         text.style.display = "none";
         strength.style.display = "block";
         strengthLabel.textContent = "Enable music peak detection for strength";
+    }
+}
+
+function collapsibleStuff() {
+    var coll = document.getElementsByClassName("collapsible");
+    var i;
+
+    for (i = 0; i < coll.length; i++) {
+    coll[i].addEventListener("click", function() {
+        this.classList.toggle("active");
+        var content = this.nextElementSibling;
+        if (content.style.display === "block") {
+        content.style.display = "none";
+        this.textContent = "Open " + this.nextElementSibling.querySelector("h1").textContent;
+        } else {
+        content.style.display = "block";
+        this.textContent = "Close " + this.nextElementSibling.querySelector("h1").textContent;
+        }
+    });
+    coll[i].click()
+    coll[i].click()
     }
 }

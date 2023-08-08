@@ -48,15 +48,14 @@
             <div id="scenes-container" name="scenes" class="textbox-container">
                 <script>addTextbox('scenes-container')</script>
             </div>
+            <!-- <div>
+                <label for="images">Images:</label>
+                <div id="images-container" class="textbox-container">
+                    <script>addTextbox('images-container')</script>
+                </div>
+                <button onclick="addTextbox('images-container')" type="button">+</button>
+            </div> -->
         </div>
-
-        <!-- <div>
-            <label for="images">Images:</label>
-            <div id="images-container" class="textbox-container">
-                <script>addTextbox('images-container')</script>
-            </div>
-            <button onclick="addTextbox('images-container')" type="button">+</button>
-        </div> -->
         <div id="discordData">
             <label for="additional-text">Optional - discord username:</label>
             <input type="text" id="additional-text" name="additionalText" autocomplete="off">
@@ -84,13 +83,8 @@
         </div>
         <button type="submit" value="Submit">Submit</button>
     </form>
-    <!-- <button onclick="togglePeakDetectionFun()" id="togglePeakDetection">Toggle open to use music peak detection for strength</button> -->
-    <!-- <label for="togglePeakDetection">Toggle open to use music peak detection for strength</label>
-        <input type="checkbox" id="togglePeakDetection" onchange="togglePeakDetectionFun()" style="margin-top: 20px; display: none;"> -->
-    
 
     <div id="videoPage" class="page hidden" hidden="true">
-        <!-- <video width="512" height="512" id="videoBlock" controls></video> -->
         <p>Check Discord for the video results <a href="https://discord.com/channels/799761313772863508/1131070890654834790">discord channel</a></p>
         <p><a href="https://discord.com/invite/ZUMxF6q3EZ">discord invite</a></p>
         <p id="resultTime">Time to get results</p>
@@ -102,25 +96,7 @@
     </div>
 
     <script>
-        // collapsible stuff
-        var coll = document.getElementsByClassName("collapsible");
-        var i;
-        
-        for (i = 0; i < coll.length; i++) {
-          coll[i].addEventListener("click", function() {
-            this.classList.toggle("active");
-            var content = this.nextElementSibling;
-            if (content.style.display === "block") {
-              content.style.display = "none";
-              this.textContent = "Open " + this.nextElementSibling.querySelector("h1").textContent;
-            } else {
-              content.style.display = "block";
-              this.textContent = "Close " + this.nextElementSibling.querySelector("h1").textContent;
-            }
-          });
-          coll[i].click()
-          coll[i].click()
-        }
+        collapsibleStuff()
     </script>
 </body>
 </html>
