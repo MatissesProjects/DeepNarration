@@ -44,7 +44,11 @@
                 <h1>Scenes</h1>
                 <!-- <h1 style="margin-left: 20px;">Images</h1> -->
             </div>
-            <button onclick="addTextbox('scenes-container')" type="button" class="fab">+</button>
+            <div>
+                <button onclick="addTextbox('scenes-container')" type="button" class="fab">+</button>
+                <button onclick="clearAllTextboxes()" type="button">clear all</button>
+                <button onclick="setTo1Scene()" type="button">set to 1 scene</button>
+            </div>
             <div id="scenes-container" name="scenes" class="textbox-container">
                 <script>addTextbox('scenes-container')</script>
             </div>
@@ -71,9 +75,9 @@
             <!-- .wav,.mp3,.m4a,.ogg,.oga,.opus,.aac,.flac -->
             <input type="file" id="audioFile" accept="audio/*" capture><br>
             <label for="minDesired">Min Desired value:</label>
-            <input type="number" id="minDesired" step="0.1" value=".85"><br>
+            <input type="number" id="minDesired" step="0.01" value=".85"><br>
             <label for="maxDesired">Max Desired value:</label>
-            <input type="number" id="maxDesired" step="0.1" value=".45"><br>
+            <input type="number" id="maxDesired" step="0.01" value=".45"><br>
             <p id="output" hidden="true">Upload a file to start...</p>
         </div>
         <div id="discordData">

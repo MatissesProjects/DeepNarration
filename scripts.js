@@ -20,6 +20,7 @@ function addTextbox(containerId) {
     var newDeleteSceneButton = document.createElement('button');
     newDeleteSceneButton.type = 'button';
     newDeleteSceneButton.textContent = "-";
+    newDeleteSceneButton.classList.add("fab")
     newDeleteSceneButton.onclick = (event) => {
         event.target.parentElement.remove()
         getTtsLength()
@@ -53,6 +54,18 @@ function addTextbox(containerId) {
     container.appendChild(textboxDiv)
 
     getTtsLength()
+}
+
+function clearAllTextboxes() {
+    var scenesTextboxes = document.querySelectorAll("#scenes-container textarea");
+    scenesTextboxes.forEach(element => {
+        element.value = ""
+    });
+}
+
+function setTo1Scene() {
+    document.querySelectorAll(".textbox-container-with-").forEach(i => i.remove() )
+    addTextbox('scenes-container')
 }
 
 function navagate(page) {
@@ -108,53 +121,54 @@ function submitForm(event) {
             togglePeakDetectionFun()
             break;
         case 'Submit':
-            processAudio()
-            var strength;
-            var soundOutput;
             navagate(LOADING_PAGE)
-            setTimeout(() => {
-                strength = '0:('+document.querySelector("#strength").value+')'
-                soundOutput = document.getElementById('output').textContent;
-                navagate(VIDEO_PAGE)
-             
-                if(peakDisplayed) strength = soundOutput
-                console.log(strength);
-                Promise.resolve(audioDuration).then( duration => {
-                    imagesForms = []
-                    scenesTextboxes.forEach(textbox => {
-                        var promptData = textbox.value.replaceAll('"', '').replaceAll("'", '').replaceAll('\n', '')
-                        var formData = {
-                            prompt: promptData + ' beautiful, masterpiece, amazing'
-                        };
-                        index++
-                        positivePrompt.push(`"${index}": "${promptData}"`)
-                        imagesForms.push(formData)
+            Promise.resolve(processAudio()).then( _ => {
+                setTimeout(() => {
+                    var strength;
+                    var soundOutput;
+                    strength = '0:('+document.querySelector("#strength").value+')'
+                    soundOutput = document.getElementById('output').textContent;
+                    navagate(VIDEO_PAGE)
+                
+                    if(peakDisplayed) strength = soundOutput
+                    console.log(strength);
+                    Promise.resolve(audioDuration).then( duration => {
+                        imagesForms = []
+                        scenesTextboxes.forEach(textbox => {
+                            var promptData = textbox.value.replaceAll('"', '').replaceAll("'", '').replaceAll('\n', '')
+                            var formData = {
+                                prompt: promptData
+                            };
+                            index++
+                            positivePrompt.push(`"${index}": "${promptData}"`)
+                            imagesForms.push(formData)
+                        });
+                        // check if there was an uploaded audio file
+                        audioFileName = ''
+                        if(document.querySelector("#audioFile").files.length > 0) {
+                            uploadAudio(document.querySelector("#audioFile").files[0])
+                            audioFileName = document.querySelector("#audioFile").files[0].name
+                        }
+
+                        let job ={  imagePrompts: imagesForms,
+                                    discordName: discordName,
+                                    strength: strength,
+                                    audioName: audioFileName}
+                        promises.push(getImages(job, useDummy)
+                                        .then(response => {
+                                            console.log(response);
+                                            imagesData.push(response)
+                                        })
+                                        .catch(error => console.error(error)));
+
+                        var time = index * 6 + duration
+                        startVideoMessage(time)
+                        document.querySelector("#resultTime").textContent = `Generation should be done by ${Math.floor(time/60)} minutes and ${Math.floor(time - Math.floor(time/60)*60)} seconds.`
+                        time = duration
+                        document.querySelector("#sceneLengthEstimate").textContent = `Final results should be about ${Math.floor(time/60)} minutes and ${Math.floor(time - Math.floor(time/60)*60)} seconds.`
                     });
-                    // check if there was an uploaded audio file
-                    audioFileName = ''
-                    if(document.querySelector("#audioFile").files.length > 0) {
-                        uploadAudio(document.querySelector("#audioFile").files[0])
-                        audioFileName = document.querySelector("#audioFile").files[0].name
-                    }
-
-                    let job ={  imagePrompts: imagesForms,
-                                discordName: discordName,
-                                strength: strength,
-                                audioName: audioFileName}
-                    promises.push(getImages(job, useDummy)
-                                    .then(response => {
-                                        console.log(response);
-                                        imagesData.push(response)
-                                    })
-                                    .catch(error => console.error(error)));
-
-                    var time = index * 6 + duration
-                    startVideoMessage(time)
-                    document.querySelector("#resultTime").textContent = `Generation should be done by ${Math.floor(time/60)} minutes and ${Math.floor(time - Math.floor(time/60)*60)} seconds.`
-                    time = duration
-                    document.querySelector("#sceneLengthEstimate").textContent = `Final results should be about ${Math.floor(time/60)} minutes and ${Math.floor(time - Math.floor(time/60)*60)} seconds.`
-                });
-            }, 1500);
+                }, 1500);
+            })
             break;
     }
 }
@@ -191,7 +205,7 @@ function getImages(formData, useDummy) {
             resolve(["output8751600096.png", "output3494119787.png", "output5502246769.png"]);
         });
     } else {
-        return fetch("https://imagegenerator.matissetec.dev/getImages", {
+        return fetch("https://deepnarrationapi.matissetec.dev/getImages", {
                 method: "POST",
                 body: JSON.stringify(formData),
                 headers: {
@@ -231,10 +245,12 @@ function processAudio() {
     let source = audioContext.createBufferSource();
     
     let reader = new FileReader();
+    var promise;
     reader.onload = function(ev) {
-        audioContext.decodeAudioData(ev.target.result)
+        promise = audioContext.decodeAudioData(ev.target.result)
         .then(audioBuffer => {
             source.buffer = audioBuffer;
+            console.log('souce length: ' + source.buffer.duration)
             console.log(textToSay);
             console.log(Math.ceil((textToSay.split(" ").length-1)/200*60*11.5));
             let peaks = detectPeaks(audioBuffer, Math.ceil((textToSay.split(" ").length-1)/200*60*11.5), minDesired, maxDesired);
@@ -243,6 +259,7 @@ function processAudio() {
         });
     };
     reader.readAsArrayBuffer(file);
+    return promise
 }
 
 function detectPeaks(audioBuffer, numberOfFrames, minDesired, maxDesired) {
