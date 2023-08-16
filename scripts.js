@@ -25,6 +25,18 @@ function addTextbox(containerId) {
         event.target.parentElement.remove()
         getTtsLength()
     }
+    var randomStrings = ['sunset over the ocean silhouette of a city skyline', 'dancing in the rain mystical forest', 'burst of colorful fireworks reflection in a puddle', 'whisper of the wind adventure under the stars', 'hidden treasure in a cave blossoming cherry blossoms', 'person in a chair landscape with mountains', 'still life with fruits abstract artwork', 'vibrant colors of a mesmerizing sunset over the endless expanse of the ocean','captivating silhouette of a bustling city skyline against the backdrop of a setting sun','joyful moments of dancing in the refreshing raindrops, embracing the rhythm of life','enchanted journey through a mystical forest, where ancient secrets whisper through the trees','explosive display of vibrant and dazzling fireworks, painting the night sky with splendor','serene reflection in a crystal-clear puddle, mirroring the world in a moment of tranquility','gentle whisper of the wind, carrying stories and dreams through the rustling leaves','adventurous exploration under the sparkling tapestry of stars, forging unforgettable memories','hidden treasure tucked away in the depths of a mysterious cave, waiting to be discovered','delicate beauty of blossoming cherry blossoms, painting the world with ephemeral hues','thought-provoking abstraction that pushes the boundaries of conventional artwork','intriguing portrait capturing the essence of a person immersed in their thoughts while seated in a chair','majestic landscape adorned with towering mountains, inviting you to embrace the grandeur of nature','captivating still life composition featuring an array of luscious fruits, tantalizing the senses with their vibrant colors and tempting aromas', 'Time-worn pages of an ancient book unraveling mysteries of the past', 'Golden sunrise spreading warmth over a sleepy village', 'Misty foggy morning in a tranquil lake, breaking dawns first light', 'Melody of a songbird ushering a new day in the quiet wilderness', 'Mirage in the desert dancing under the scorching sun', 'Glimpse of an elusive unicorn in the heart of a enchanted glade', 'Symphony of the city, night life pulsating with lights and sounds', 'Peaceful Zen garden nurturing tranquility amidst chaos', 'Twilight sky studded with lanterns, wishes ascending to the stars', 'Peoples first steps on the moon, a moment of triumph and joy', 'Tango of waves and the moonlight, mesmerizing seaside dance', 'Street artist transforming a blank wall into a vibrant canvas', 'Intricate snowflake landing softly, winters unique signature', 'Raw power of a waterfall, natures untamed symphony', 'Journey through the cosmos, stargazing at a nebulas mystical beauty'];
+    var newShuffleButton = document.createElement('button');
+    newShuffleButton.type = 'button';
+    newShuffleButton.classList.add("fab")
+    newShuffleButton.textContent = '🔀';
+    newShuffleButton.onclick = (event) => {
+        // Array of random strings
+        var randomIndex = Math.floor(Math.random() * randomStrings.length);
+        newTextbox.value = randomStrings[randomIndex];
+        initialText = newTextbox.value;
+        getTtsLength()
+    }
     var textboxDiv = document.createElement('div');
     textboxDiv.type = 'div';
     textboxDiv.classList.add("textbox-container-with-")
@@ -32,11 +44,7 @@ function addTextbox(containerId) {
     // newImagesTextbox.type = 'textarea';
     // newImagesTextbox.classList.add("textbox-images")
     
-    // Array of random strings
-    var randomStrings = ['sunset over the ocean silhouette of a city skyline', 'dancing in the rain mystical forest', 'burst of colorful fireworks reflection in a puddle', 'whisper of the wind adventure under the stars', 'hidden treasure in a cave blossoming cherry blossoms', 'person in a chair landscape with mountains', 'still life with fruits abstract artwork', 'vibrant colors of a mesmerizing sunset over the endless expanse of the ocean','captivating silhouette of a bustling city skyline against the backdrop of a setting sun','joyful moments of dancing in the refreshing raindrops, embracing the rhythm of life','enchanted journey through a mystical forest, where ancient secrets whisper through the trees','explosive display of vibrant and dazzling fireworks, painting the night sky with splendor','serene reflection in a crystal-clear puddle, mirroring the world in a moment of tranquility','gentle whisper of the wind, carrying stories and dreams through the rustling leaves','adventurous exploration under the sparkling tapestry of stars, forging unforgettable memories','hidden treasure tucked away in the depths of a mysterious cave, waiting to be discovered','delicate beauty of blossoming cherry blossoms, painting the world with ephemeral hues','thought-provoking abstraction that pushes the boundaries of conventional artwork','intriguing portrait capturing the essence of a person immersed in their thoughts while seated in a chair','majestic landscape adorned with towering mountains, inviting you to embrace the grandeur of nature','captivating still life composition featuring an array of luscious fruits, tantalizing the senses with their vibrant colors and tempting aromas', 'Time-worn pages of an ancient book unraveling mysteries of the past', 'Golden sunrise spreading warmth over a sleepy village', 'Misty foggy morning in a tranquil lake, breaking dawns first light', 'Melody of a songbird ushering a new day in the quiet wilderness', 'Mirage in the desert dancing under the scorching sun', 'Glimpse of an elusive unicorn in the heart of a enchanted glade', 'Symphony of the city, night life pulsating with lights and sounds', 'Peaceful Zen garden nurturing tranquility amidst chaos', 'Twilight sky studded with lanterns, wishes ascending to the stars', 'Peoples first steps on the moon, a moment of triumph and joy', 'Tango of waves and the moonlight, mesmerizing seaside dance', 'Street artist transforming a blank wall into a vibrant canvas', 'Intricate snowflake landing softly, winters unique signature', 'Raw power of a waterfall, natures untamed symphony', 'Journey through the cosmos, stargazing at a nebulas mystical beauty'];
-    var randomIndex = Math.floor(Math.random() * randomStrings.length);
-    newTextbox.value = randomStrings[randomIndex];
-    initialText = newTextbox.value;
+    
     newTextbox.style.height = "26px"
 
     newTextbox.oninput = function() {
@@ -49,11 +57,10 @@ function addTextbox(containerId) {
         }
     }
     textboxDiv.appendChild(newDeleteSceneButton);
+    textboxDiv.appendChild(newShuffleButton);
     textboxDiv.appendChild(newTextbox);
     // textboxDiv.appendChild(newImagesTextbox)
     container.appendChild(textboxDiv)
-
-    getTtsLength()
 }
 
 function clearAllTextboxes() {
@@ -61,11 +68,13 @@ function clearAllTextboxes() {
     scenesTextboxes.forEach(element => {
         element.value = ""
     });
+    getTtsLength()
 }
 
 function setTo1Scene() {
     document.querySelectorAll(".textbox-container-with-").forEach(i => i.remove() )
     addTextbox('scenes-container')
+    getTtsLength()
 }
 
 function navagate(page) {
@@ -100,10 +109,14 @@ function getTtsLength() {
     scenesTextboxes.forEach(textbox => {
         textToSay += textbox.value + " "
     })
-    audioDuration = downloadTTSVoice({promptDataString:textToSay})
-    Promise.resolve(audioDuration).then( duration => {
-        document.getElementById("sceneLengthEstimate").textContent = `tts and video will be ${parseFloat(duration).toFixed(1)} seconds, you need your selected music to match up`
-    })
+    if(textToSay.trim().length > 0) {
+        audioDuration = downloadTTSVoice({promptDataString:textToSay})
+        Promise.resolve(audioDuration).then( duration => {
+            document.getElementById("sceneLengthEstimate").textContent = `tts and video will be ${parseFloat(duration).toFixed(1)} seconds, you need your selected music to match up`
+        })
+    } else {
+        document.getElementById("sceneLengthEstimate").textContent = `tts and video will be 0 seconds, you need your selected music to match up`
+    }
 }
 
 function submitForm(event) {
@@ -122,7 +135,7 @@ function submitForm(event) {
             break;
         case 'Submit':
             navagate(LOADING_PAGE)
-            Promise.resolve(processAudio()).then( _ => {
+            processAudio().then( () => {
                 setTimeout(() => {
                     var strength;
                     var soundOutput;
@@ -161,35 +174,23 @@ function submitForm(event) {
                                         })
                                         .catch(error => console.error(error)));
 
-                        var time = index * 6 + duration
-                        startVideoMessage(time)
+                        var time = index * 6 + duration * 17
+                        // startVideoMessage(time)
                         document.querySelector("#resultTime").textContent = `Generation should be done by ${Math.floor(time/60)} minutes and ${Math.floor(time - Math.floor(time/60)*60)} seconds.`
                         time = duration
                         document.querySelector("#sceneLengthEstimate").textContent = `Final results should be about ${Math.floor(time/60)} minutes and ${Math.floor(time - Math.floor(time/60)*60)} seconds.`
                     });
                 }, 1500);
-            })
+            }).catch(error => {
+                console.error('Error in processAudio:', error);
+                // Handle the error, perhaps show a user-friendly message.
+            });
             break;
     }
 }
 
-function startVideoMessage(time) {
-    var formData = {
-        minutes: Math.floor(time/60),
-        seconds: Math.floor(time - Math.floor(time/60)*60)
-    };
-    return fetch(`https://imagegenerator.matissetec.dev/startGenerationMessage`, {
-            method: "POST",
-            body: JSON.stringify(formData),
-            headers: {
-                "Content-Type": "application/json"
-            }
-        })
-        .catch(error => console.error(error));
-}
-
 function downloadTTSVoice(formData) {
-    return fetch("https://imagegenerator.matissetec.dev/downloadTTSVoice", {
+    return fetch("https://deepnarrationapi.matissetec.dev/downloadTTSVoice", {
         method: "POST",
         body: JSON.stringify(formData),
         headers: {
@@ -219,48 +220,57 @@ function getImages(formData, useDummy) {
 function uploadAudio(file) {
     let formData = new FormData();
     formData.append("audioFile", file);
-    return fetch("https://imagegenerator.matissetec.dev/uploadAudio", {
+    return fetch("https://deepnarrationapi.matissetec.dev/uploadAudio", {
         method: "POST",
         body: formData
     });
 }
 
 function processAudio() {
-    let file = document.getElementById('audioFile').files[0];
-    let minDesired = parseFloat(document.getElementById('minDesired').value);
-    let maxDesired = parseFloat(document.getElementById('maxDesired').value);
-    var textToSay = ''
-    var scenesTextboxes = document.querySelectorAll("#scenes-container textarea");
-    scenesTextboxes.forEach(textbox => {
-        textToSay += textbox.value + " "
-    })
-    textToSay = textToSay.replaceAll('  ', ' ')
-    
-    if (!file) {
-        document.getElementById('output').textContent = 'No file uploaded.';
-        return;
-    }
+    return new Promise((resolve, reject) => { 
+        if(!peakDisplayed)
+            resolve()
+        let file = document.getElementById('audioFile').files[0];
+        let minDesired = parseFloat(document.getElementById('minDesired').value);
+        let maxDesired = parseFloat(document.getElementById('maxDesired').value);
+        var textToSay = ''
+        var scenesTextboxes = document.querySelectorAll("#scenes-container textarea");
+        scenesTextboxes.forEach(textbox => {
+            textToSay += textbox.value + " "
+        })
+        textToSay = textToSay.replaceAll('  ', ' ')
 
-    let audioContext = new (window.AudioContext || window.webkitAudioContext)();
-    let source = audioContext.createBufferSource();
-    
-    let reader = new FileReader();
-    var promise;
-    reader.onload = function(ev) {
-        promise = audioContext.decodeAudioData(ev.target.result)
-        .then(audioBuffer => {
-            source.buffer = audioBuffer;
-            console.log('souce length: ' + source.buffer.duration)
-            console.log(textToSay);
-            console.log(Math.ceil((textToSay.split(" ").length-1)/200*60*11.5));
-            let peaks = detectPeaks(audioBuffer, Math.ceil((textToSay.split(" ").length-1)/200*60*11.5), minDesired, maxDesired);
-            let output = processPeaks(peaks);
-            document.getElementById('output').textContent = output;
-        });
-    };
-    reader.readAsArrayBuffer(file);
-    return promise
+        if (!file) {
+            document.getElementById('output').textContent = 'No file uploaded.';
+            reject('No file uploaded.'); // Reject the promise here
+            return;
+        }
+
+        let audioContext = new (window.AudioContext || window.webkitAudioContext)();
+        let source = audioContext.createBufferSource();
+
+        let reader = new FileReader();
+        reader.onload = function(ev) {
+            audioContext.decodeAudioData(ev.target.result)
+            .then(audioBuffer => {
+                source.buffer = audioBuffer;
+                console.log('source length: ' + source.buffer.duration)
+                console.log(textToSay);
+                console.log(Math.ceil((textToSay.split(" ").length-1)/200*60*11.5));
+                let peaks = detectPeaks(audioBuffer, Math.ceil((textToSay.split(" ").length-1)/200*60*11.5), minDesired, maxDesired);
+                let output = processPeaks(peaks);
+                document.getElementById('output').textContent = output;
+                resolve(); // Resolve the promise here
+            })
+            .catch(error => {
+                reject(error); // In case of an error in decoding, reject the promise
+            });
+        };
+        reader.onerror = reject;  // In case of an error reading the file, reject the promise
+        reader.readAsArrayBuffer(file);
+    });
 }
+
 
 function detectPeaks(audioBuffer, numberOfFrames, minDesired, maxDesired) {
     let channelData = audioBuffer.getChannelData(0); // Assuming mono audio (1 channel)
