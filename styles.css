@@ -1,3 +1,16 @@
+:root {
+    --primary-color: #0288D1; /* Light Blue 700 */
+    --primary-color-hover: #0277BD; /* Light Blue 800 */
+    --text-color: #d3cfca;; /* Dark Grey */
+    --background-color: #33383a; /* Dark Grey */
+    /* Add other color variables as needed */
+}
+
+html, input, textarea, select, button, dialog {
+    background-color: #181a1b;
+    color: var(--text-color); /* Dark Grey */
+}
+
 .textbox-container {
     margin-bottom: 10px;
 }
@@ -5,12 +18,12 @@
 body {
     padding: 10px;
     font-family: Arial, sans-serif;
-    background-color: #E3F2FD; /* Light Blue 50 */
-    color: #212121; /* Dark Grey */
+    background-color: var(--background-color);
+    color: var(--text-color); /* Dark Grey */
 }
 
 h1 {
-    color: #01579B; /* Light Blue 900 */
+    color: rgb(111, 193, 254);
     margin: 5px 0px;
     float: left;
 }
@@ -20,7 +33,7 @@ button {
     padding: 20px;
     width: auto;
     /* width: 100%; */
-    background-color: #0288D1; /* Light Blue 700 */
+    background-color: var(--primary-color); /* Light Blue 700 */
     color: #FFFFFF; /* White */
     text-decoration: none;
     border: none;
@@ -93,7 +106,7 @@ textarea {
 }
 
 button:hover, a:hover {
-    background-color: #0277BD; /* Light Blue 800 */
+    background-color: var(--primary-color-hover); /* Light Blue 800 */
 }
 
 input {
@@ -141,5 +154,6 @@ video {
     padding: 0 18px;
     display: none;
     overflow: hidden;
-    background-color: #f1f1f1;
+    /* background-color: #f1f1f1; */
+    background-color: rgb(32, 35, 36);
   }
