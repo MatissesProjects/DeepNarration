@@ -4,6 +4,8 @@
     <title>Deep Narration</title>
     <link rel="shortcut icon" href="/static/favicon.png">
     <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="A generative ai video creation tool.">
     <script src="localVariables.js"></script>
     <script src="scripts.js"></script>
     <link rel="stylesheet" type="text/css" href="styles.css">
@@ -16,10 +18,10 @@
                 <h1>How To Use</h1>
                 <br>
                 <br>
-                <p>Add a few scenes and enter a story for them, a tts will be speaking them back, for now no voice controls.</p>
+                <p>Add a few scenes and enter a story for them, a <span class="tooltip" title="TTS stands for Text-to-Speech. It's a technology that converts written text into spoken voice output.">TTS</span> will be speaking them back, for now no voice controls.</p>
                 <p>If you want to remove a scene hit the - next to it</p>
                 <p>Run the process by clicking submit.</p>
-                <p>If you want to have audio reactivity you can click the Enable music peak detection for strength. </p>
+                <p>If you want to have audio reactivity you can click the <span class="tooltip" title="This feature analyzes the music's peaks to adjust the video's intensity accordingly, creating a more synchronized and dynamic experience.">Enable music peak detection for strength</span>.</p>
                 <p>This will give you the final length of the video, you need this value to match the music length entered. Either cut the audio, or change the scene</p>
                 <p>Scene length is currently limited to 75 words</p>
             </div>
@@ -46,9 +48,9 @@
                 <!-- <h1 style="margin-left: 20px;">Images</h1> -->
             </div>
             <div>
-                <button onclick="addTextbox('scenes-container')" type="button" class="fab">+</button>
-                <button onclick="clearAllTextboxes()" type="button">clear all</button>
-                <button onclick="setTo1Scene()" type="button">set to 1 scene</button>
+                <button onclick="addTextbox('scenes-container')" type="button" class="fab" title="add more scenes, adds to the bottom">+</button>
+                <button onclick="clearAllTextboxes()" type="button" title="clear all the scenes, leaves the number of scenes added">clear all</button>
+                <button onclick="setTo1Scene()" type="button" title="deletes all scenes and adds back just the 1 empty">set to 1 scene</button>
             </div>
             <div id="scenes-container" name="scenes" class="textbox-container">
                 <script>addTextbox('scenes-container')</script>

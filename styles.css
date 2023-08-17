@@ -157,3 +157,26 @@ video {
     /* background-color: #f1f1f1; */
     background-color: rgb(32, 35, 36);
   }
+
+.tooltip {
+    position: relative;
+    display: inline-block;
+    cursor: help;
+}
+
+.tooltip:hover::after {
+    content: attr(title);
+    position: absolute;
+    bottom: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    margin-bottom: 5px;
+    padding: 7px;
+    border: 1px solid #ccc;
+    background-color: #f9f9f9;
+    color: #333;
+    font-size: 12px;
+    border-radius: 4px;
+    white-space: nowrap;
+    z-index: 1000;
+}
