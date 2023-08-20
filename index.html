@@ -83,9 +83,8 @@
             <input type="number" id="maxDesired" step="0.01" value=".45"><br>
             <p id="output" hidden="true">Upload a file to start...</p>
         </div>
-        <div id="discordData">
-            <label for="additional-text">Optional - discord username:</label>
-            <input type="text" id="additional-text" name="additionalText" autocomplete="off" title="if you want a ping on discord get your # user id and enter it like <@123>">
+        <div id="discordData" hidden="true">
+            <input type="text" id="additional-text" name="additionalText" autocomplete="off" hidden="true">
         </div>
         <button type="submit" value="Submit">Submit</button>
     </form>
@@ -117,14 +116,20 @@
             })
             .then(result => result.json())
             .then(response => {
-                console.log(response);
-                const { username, discriminator, avatar, id} = response;
-                //set the welcome username string
-                document.getElementById('name').innerText = ` ${username}#${discriminator}`;
-                //set the avatar image by constructing a url to access discord's cdn
-                document.getElementById("avatar").src = `https://cdn.discordapp.com/avatars/${id}/${avatar}.jpg`;
-                
                 // they have properly logged in, show data
+                const { username, discriminator, avatar, id} = response;
+                console.log(response);
+                fragment2 = new URLSearchParams(window.location.hash.slice(1));
+                [accessToken2, tokenType2] = [fragment2.get('access_token'), fragment2.get('token_type')];
+                fetch('https://deepnarrationapi.matissetec.dev/userLoggedIn', {
+                    method: 'POST',// set to 60000 for minutes
+                    body: JSON.stringify({accessToken:accessToken2, ttl:new Date().getTime()+10000*1}),
+                    headers: {
+                        "Content-Type": "application/json"
+                    }
+                })
+                window.history.pushState("deepnarration.matissetec.dev", "DeepNarration", "/");
+                document.getElementById('additional-text').value = `<@${id}>`;
             })
             .catch(console.error);
         };

@@ -261,6 +261,7 @@ function processAudio() {
                 console.log(textToSay);
                 console.log(Math.ceil((textToSay.split(" ").length-1)/200*60*11.5));
                 let peaks = detectPeaks(audioBuffer, Math.ceil((textToSay.split(" ").length-1)/200*60*11.5), minDesired, maxDesired);
+                console.log((Math.max(peaks) -Math.min(peaks))/2);
                 let output = processPeaks(peaks);
                 document.getElementById('output').textContent = output;
                 resolve(); // Resolve the promise here
