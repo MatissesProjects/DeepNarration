@@ -6,100 +6,6 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description" content="A generative ai video creation tool.">
-    <script src="localVariables.js"></script>
-    <script src="scripts.js"></script>
-    <link rel="stylesheet" type="text/css" href="styles.css">
-</head>
-<body>
-    <form id="myForm" class="page" onsubmit="submitForm(event)">
-        <div id="howToSection">
-            <button type="button" class="collapsible">Open How To Use</button>
-            <div class="content">
-                <h1>How To Use</h1>
-                <br>
-                <br>
-                <p>Add a few scenes and enter a story for them, a <span class="tooltip" title="TTS stands for Text-to-Speech. It's a technology that converts written text into spoken voice output.">TTS</span> will be speaking them back, for now no voice controls.</p>
-                <p>If you want to remove a scene hit the - next to it</p>
-                <p>Run the process by clicking submit.</p>
-                <p>If you want to have audio reactivity you can click the <span class="tooltip" title="This feature analyzes the music's peaks to adjust the video's intensity accordingly, creating a more synchronized and dynamic experience.">Enable music peak detection for strength</span>.</p>
-                <p>This will give you the final length of the video, you need this value to match the music length entered. Either cut the audio, or change the scene</p>
-                <p>Scene length is currently limited to 75 words</p>
-            </div>
-            <button type="button" class="collapsible">Open Suggestion</button>
-            <div class="content">
-                <h1>Suggestion</h1>
-                <br>
-                <br>
-                <p>Any part you want to see a specific image of, make it its own scene the more descriptive the better</p>
-                <p>You can use the auto generated scenes, but they are pretty random.</p>
-                <p>A way to come up with a story is to ask for a short 3-6 scene story from <a href="https://claude.ai/">claude.ai</a> you want the scenes to be 75 words max</p>
-                <p>If you want to check if the system is available currently going to discord to see if its in a run is the easiest way, ill add an indicator here soon</p>
-            </div>
-            <button type="button" class="collapsible">Open Notes</button>
-            <div class="content">
-                <h1>Notes</h1>
-                <br>
-                <br>
-                <p>now using dreamsharperxl10alpha2 and SD XL 1.0 refined for the deforum run</p>
-                <p>The system currently has only 1 node running the API with limited queing, so if someone else is using it the generation start after theirs is done</p>
-            </div>
-            <div style="display: flex; align-items: center;">
-                <h1>Scenes</h1>
-                <!-- <h1 style="margin-left: 20px;">Images</h1> -->
-            </div>
-            <div>
-                <button onclick="addTextbox('scenes-container')" type="button" class="fab" title="add more scenes, adds to the bottom">+</button>
-                <button onclick="clearAllTextboxes()" type="button" title="clear all the scenes, leaves the number of scenes added">clear all</button>
-                <button onclick="setTo1Scene()" type="button" title="deletes all scenes and adds back just the 1 empty">set to 1 scene</button>
-            </div>
-            <div id="scenes-container" name="scenes" class="textbox-container">
-                <script>addTextbox('scenes-container')</script>
-            </div>
-            <!-- <div>
-                <label for="images">Images:</label>
-                <div id="images-container" class="textbox-container">
-                    <script>addTextbox('images-container')</script>
-                </div>
-                <button onclick="addTextbox('images-container')" type="button">+</button>
-            </div> -->
-        </div>
-        <div>
-            <button type="submit" id="peakButton" value="Enable peak detection for strength" title="this will use audio input for the strength value, fun for audio matching a clip">Enable peak detection for strength</button>
-        </div>
-        <div id="strengthDiv">
-            <label for="strength">Strength value:</label>
-            <input type="number" id="strength" step="0.01" value=".70" max="1" min="0"><br>
-        </div>
-        <div id="peakDetection" style="display: none;">
-            <h1>Peak Detection</h1>
-            <br><br>
-            <p id="sceneLengthEstimate"></p>
-            <p>in the future the option to clip the audio will be added</p>
-            <!-- .wav,.mp3,.m4a,.ogg,.oga,.opus,.aac,.flac -->
-            <input type="file" id="audioFile" accept="audio/*" capture><br>
-            <label for="minDesired">Min Desired value:</label>
-            <input type="number" id="minDesired" step="0.01" value=".85"><br>
-            <label for="maxDesired">Max Desired value:</label>
-            <input type="number" id="maxDesired" step="0.01" value=".45"><br>
-            <p id="output" hidden="true">Upload a file to start...</p>
-        </div>
-        <div id="discordData" hidden="true">
-            <input type="text" id="additional-text" name="additionalText" autocomplete="off" hidden="true">
-        </div>
-        <button type="submit" value="Submit">Submit</button>
-    </form>
-
-    <div id="videoPage" class="page hidden" hidden="true">
-        <p>Check Discord for the video results <a href="https://discord.com/channels/799761313772863508/1131070890654834790">discord channel</a></p>
-        <p><a href="https://discord.com/invite/ZUMxF6q3EZ">discord invite</a></p>
-        <p id="resultTime">Time to get results</p>
-        <p>If you have any requests or questions feel free to message in the discord or directly</p>
-        <button id="goBack" onclick="navagate('inputPage')">Back</button>
-    </div>
-    <div id="loadingPage" class="page hidden" hidden="true">
-        <div class="loader"></div>
-    </div>
-
     <script>
         window.onload = () => {
             const fragment = new URLSearchParams(window.location.hash.slice(1));
@@ -119,6 +25,7 @@
                 // they have properly logged in, show data
                 const { username, discriminator, avatar, id} = response;
                 console.log(response);
+                
                 fragment2 = new URLSearchParams(window.location.hash.slice(1));
                 [accessToken2, tokenType2] = [fragment2.get('access_token'), fragment2.get('token_type')];
                 fetch('https://deepnarrationapi.matissetec.dev/userLoggedIn', {
@@ -130,9 +37,108 @@
                 })
                 window.history.pushState("deepnarration.matissetec.dev", "DeepNarration", "/");
                 document.getElementById('additional-text').value = `<@${id}>`;
+                document.getElementById("full-content").removeAttribute('hidden')
             })
             .catch(console.error);
         };
+    </script>
+    <script src="localVariables.js"></script>
+    <script src="scripts.js"></script>
+    <link rel="stylesheet" type="text/css" href="styles.css">
+</head>
+<body>
+    <div id="full-content" hidden="true">
+        <form id="myForm" class="page" onsubmit="submitForm(event)">
+            <div id="howToSection">
+                <button type="button" class="collapsible">Open How To Use</button>
+                <div class="content">
+                    <h1>How To Use</h1>
+                    <br>
+                    <br>
+                    <p>Add a few scenes and enter a story for them, a <span class="tooltip" title="TTS stands for Text-to-Speech. It's a technology that converts written text into spoken voice output.">TTS</span> will be speaking them back, for now no voice controls.</p>
+                    <p>If you want to remove a scene hit the - next to it</p>
+                    <p>Run the process by clicking submit.</p>
+                    <p>If you want to have audio reactivity you can click the <span class="tooltip" title="This feature analyzes the music's peaks to adjust the video's intensity accordingly, creating a more synchronized and dynamic experience.">Enable music peak detection for strength</span>.</p>
+                    <p>This will give you the final length of the video, you need this value to match the music length entered. Either cut the audio, or change the scene</p>
+                    <p>Scene length is currently limited to 75 words</p>
+                </div>
+                <button type="button" class="collapsible">Open Suggestion</button>
+                <div class="content">
+                    <h1>Suggestion</h1>
+                    <br>
+                    <br>
+                    <p>Any part you want to see a specific image of, make it its own scene the more descriptive the better</p>
+                    <p>You can use the auto generated scenes, but they are pretty random.</p>
+                    <p>A way to come up with a story is to ask for a short 3-6 scene story from <a href="https://claude.ai/">claude.ai</a> you want the scenes to be 75 words max</p>
+                    <p>If you want to check if the system is available currently going to discord to see if its in a run is the easiest way, ill add an indicator here soon</p>
+                </div>
+                <button type="button" class="collapsible">Open Notes</button>
+                <div class="content">
+                    <h1>Notes</h1>
+                    <br>
+                    <br>
+                    <p>now using dreamsharperxl10alpha2 and SD XL 1.0 refined for the deforum run</p>
+                    <p>The system currently has only 1 node running the API with limited queing, so if someone else is using it the generation start after theirs is done</p>
+                </div>
+                <div style="display: flex; align-items: center;">
+                    <h1><span class="tooltip" title="The scene will be spoken while the video of it is displayed">Scenes</span></h1>
+                    <!-- <h1 style="margin-left: 20px;">Images</h1> -->
+                </div>
+                <div>
+                    <button onclick="addTextbox('scenes-container')" type="button" class="fab" title="add more scenes, adds to the bottom">+</button>
+                    <button onclick="clearAllTextboxes()" type="button" title="clear all the scenes, leaves the number of scenes added">clear all</button>
+                    <button onclick="setTo1Scene()" type="button" title="deletes all scenes and adds back just the 1 empty">set to 1 scene</button>
+                </div>
+                <div id="scenes-container" name="scenes" class="textbox-container">
+                    <script>addTextbox('scenes-container')</script>
+                </div>
+                <!-- <div>
+                    <label for="images">Images:</label>
+                    <div id="images-container" class="textbox-container">
+                        <script>addTextbox('images-container')</script>
+                    </div>
+                    <button onclick="addTextbox('images-container')" type="button">+</button>
+                </div> -->
+            </div>
+            <div>
+                <button type="submit" id="peakButton" value="Enable peak detection for strength" title="this will use audio input for the strength value, fun for audio matching a clip">Enable peak detection for strength</button>
+            </div>
+            <div id="strengthDiv">
+                <label for="strength">Strength value:</label>
+                <input type="number" id="strength" step="0.01" value=".70" max="1" min="0"><br>
+            </div>
+            <div id="peakDetection" style="display: none;">
+                <h1>Peak Detection</h1>
+                <br><br>
+                <p id="sceneLengthEstimate"></p>
+                <p>in the future the option to clip the audio will be added</p>
+                <!-- .wav,.mp3,.m4a,.ogg,.oga,.opus,.aac,.flac -->
+                <input type="file" id="audioFile" accept="audio/*" capture><br>
+                <label for="minDesired">Min Desired value:</label>
+                <input type="number" id="minDesired" step="0.01" value=".85"><br>
+                <label for="maxDesired">Max Desired value:</label>
+                <input type="number" id="maxDesired" step="0.01" value=".45"><br>
+                <p id="output" hidden="true">Upload a file to start...</p>
+            </div>
+            <div id="discordData" hidden="true">
+                <input type="text" id="additional-text" name="additionalText" autocomplete="off" hidden="true">
+            </div>
+            <button type="submit" value="Submit">Submit</button>
+        </form>
+
+        <div id="videoPage" class="page hidden" hidden="true">
+            <p>Check Discord for the video results <a href="https://discord.com/channels/799761313772863508/1131070890654834790">discord channel</a></p>
+            <p><a href="https://discord.com/invite/ZUMxF6q3EZ">discord invite</a></p>
+            <p id="resultTime">Time to get results</p>
+            <p>If you have any requests or questions feel free to message in the discord or directly</p>
+            <button id="goBack" onclick="navagate('inputPage')">Back</button>
+        </div>
+        <div id="loadingPage" class="page hidden" hidden="true">
+            <div class="loader"></div>
+        </div>
+    </div>
+
+    <script>
         collapsibleStuff()
     </script>
 </body>

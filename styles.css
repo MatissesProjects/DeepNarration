@@ -22,6 +22,10 @@ body {
     color: var(--text-color); /* Dark Grey */
 }
 
+.full-content {
+    display: none;
+}
+
 h1 {
     color: rgb(111, 193, 254);
     margin: 5px 0px;
