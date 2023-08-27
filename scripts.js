@@ -9,7 +9,6 @@ function addTextbox(containerId) {
     var initialText = "";
     var container = document.getElementById(containerId);
     var newTextbox = document.createElement('textarea');
-    // var imagesTextboxes = document.querySelectorAll("#images-container input[type='text']");
     newTextbox.type = 'textarea';
     newTextbox.onblur = () => {
         if(newTextbox.value !== initialText) {
@@ -18,6 +17,7 @@ function addTextbox(containerId) {
         }
     }
     newTextbox.title = "Max scene length is set to 75 words"
+
     var newDeleteSceneButton = document.createElement('button');
     newDeleteSceneButton.type = 'button';
     newDeleteSceneButton.textContent = "-";
@@ -43,13 +43,41 @@ function addTextbox(containerId) {
     var textboxDiv = document.createElement('div');
     textboxDiv.type = 'div';
     textboxDiv.classList.add("textbox-container-with-")
-    // var newImagesTextbox = document.createElement('textarea');
-    // newImagesTextbox.type = 'textarea';
-    // newImagesTextbox.classList.add("textbox-images")
-    
-    
-    newTextbox.style.height = "26px"
+    var newImagebox = document.createElement('textarea');
 
+    var imageDiv = document.createElement('div');
+    imageDiv.type = 'div';
+    imageDiv.classList.add("image-container-+")
+
+    var moreImagesButton = document.createElement('button')
+    moreImagesButton.type = 'button'
+    moreImagesButton.title = 'add images to this scene, more is better, up to 5 for now'
+    moreImagesButton.textContent = '+ image'
+    moreImagesButton.onclick = (event) => {
+        if(event.target.parentElement.getElementsByClassName("image-textarea").length < 5) {
+            var newImagebox = document.createElement('textarea');
+            newImagebox.classList.add("image-textarea")
+
+            imageDiv.appendChild(newImagebox);
+        }
+    }
+    imageDiv.appendChild(moreImagesButton)
+
+    var lessImagesButton = document.createElement('button')
+    lessImagesButton.type = 'button'
+    lessImagesButton.title = 'removes images from this scene, up to 5 for now'
+    lessImagesButton.textContent = '- image'
+    lessImagesButton.onclick = (event) => {
+        if(event.target.parentElement.getElementsByClassName("image-textarea").length > 0) {
+            var lastImageContainer = event.target.parentElement.getElementsByClassName("image-textarea")
+            imageDiv.removeChild(lastImageContainer[lastImageContainer.length-1]);
+        }
+    }
+    imageDiv.appendChild(lessImagesButton)
+    
+    newTextbox.classList.add("sceneTextboxes")
+    newTextbox.style.height = "26px"
+    newImagebox.style.height = "26px"
     newTextbox.oninput = function() {
         this.style.height = "5px";
         this.style.height = (this.scrollHeight)+"px";
@@ -62,8 +90,8 @@ function addTextbox(containerId) {
     textboxDiv.appendChild(newDeleteSceneButton);
     textboxDiv.appendChild(newShuffleButton);
     textboxDiv.appendChild(newTextbox);
-    // textboxDiv.appendChild(newImagesTextbox)
-    container.appendChild(textboxDiv)
+    textboxDiv.appendChild(imageDiv);
+    container.appendChild(textboxDiv);
 }
 
 function clearAllTextboxes() {
@@ -107,7 +135,9 @@ function navagate(page) {
 }
 
 function getTtsLength() {
-    var scenesTextboxes = document.querySelectorAll("#scenes-container textarea");
+    // var imagesTextboxes = document.querySelectorAll("#images-container input[type='text']");
+    
+    var scenesTextboxes = document.querySelectorAll("textarea.sceneTextboxes")
     var textToSay = ''
     scenesTextboxes.forEach(textbox => {
         textToSay += textbox.value + " "
@@ -125,7 +155,13 @@ function getTtsLength() {
 function submitForm(event) {
     event.preventDefault(); // Prevent the default form submission
     var discordName = document.querySelector("#additional-text").value
-    var scenesTextboxes = document.querySelectorAll("#scenes-container textarea");
+    var scenesTextboxes = document.querySelectorAll("textarea.sceneTextboxes")
+    var images = []
+    document.querySelectorAll(".textbox-container-with-").forEach(i => {
+        const imageTextAreas = i.querySelectorAll(".image-textarea");
+        const imageTextAreasArray = Array.from(imageTextAreas).map(j => j.value);
+        images.push(imageTextAreasArray);
+      });
     var positivePrompt = []
     var imagesData = []
     var promises = []
@@ -165,17 +201,36 @@ function submitForm(event) {
                             uploadAudio(document.querySelector("#audioFile").files[0])
                             audioFileName = document.querySelector("#audioFile").files[0].name
                         }
-
-                        let job ={  imagePrompts: imagesForms,
-                                    discordName: discordName,
-                                    strength: strength,
-                                    audioName: audioFileName}
-                        promises.push(getImages(job, useDummy)
-                                        .then(response => {
-                                            console.log(response);
-                                            imagesData.push(response)
-                                        })
-                                        .catch(error => console.error(error)));
+                        // if images are filled
+                        // add them to job
+                        if(document.querySelector(".image-textarea")){
+                            let job ={  imagePrompts: imagesForms,
+                                images:images,
+                                discordName: discordName,
+                                strength: strength,
+                                audioName: audioFileName}
+                            // promises.push(
+                                getVideo(job, useDummy)
+                                    .then(response => {
+                                        console.log(response);
+                                    })
+                                    .catch(error => console.error(error));
+                                    //);
+                        } else {
+                            let job ={  imagePrompts: imagesForms,
+                                discordName: discordName,
+                                strength: strength,
+                                audioName: audioFileName}
+                            // promises.push(
+                                getImagesVideo(job, useDummy)
+                                    .then(response => {
+                                        console.log(response);
+                                        imagesData.push(response)
+                                    })
+                                    .catch(error => console.error(error))
+                                    // );
+                        }
+                        
 
                         var time = index * 6 + duration * 17
                         // startVideoMessage(time)
@@ -203,13 +258,30 @@ function downloadTTSVoice(formData) {
     .then(response => response.text())
 }
 
-function getImages(formData, useDummy) {
+function getImagesVideo(formData, useDummy) {
     if(useDummy) {
         return new Promise((resolve, reject) => {
             resolve(["output8751600096.png", "output3494119787.png", "output5502246769.png"]);
         });
     } else {
-        return fetch("https://deepnarrationapi.matissetec.dev/getImages", {
+        return fetch("https://deepnarrationapi.matissetec.dev/getImagesVideo", {
+                method: "POST",
+                body: JSON.stringify(formData),
+                headers: {
+                    "Content-Type": "application/json"
+                }
+            })
+            .then(response => response.text())
+    }
+}
+
+function getVideo(formData, useDummy) {
+    if(useDummy) {
+        return new Promise((resolve, reject) => {
+            resolve("watch the video here 123.xyz");
+        });
+    } else {
+        return fetch("https://deepnarrationapi.matissetec.dev/getVideo", {
                 method: "POST",
                 body: JSON.stringify(formData),
                 headers: {
@@ -237,7 +309,7 @@ function processAudio() {
         let minDesired = parseFloat(document.getElementById('minDesired').value);
         let maxDesired = parseFloat(document.getElementById('maxDesired').value);
         var textToSay = ''
-        var scenesTextboxes = document.querySelectorAll("#scenes-container textarea");
+        var scenesTextboxes = document.querySelectorAll("textarea.sceneTextboxes")
         scenesTextboxes.forEach(textbox => {
             textToSay += textbox.value + " "
         })
