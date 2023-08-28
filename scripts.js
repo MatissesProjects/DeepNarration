@@ -3,6 +3,7 @@ let VIDEO_PAGE = 'videoPage'
 let INPUT_PAGE = 'inputPage'
 let LOADING_PAGE = 'loadingPage'
 var peakDisplayed = false;
+var useTts = true;
 
 // Function to add a new textbox dynamically
 function addTextbox(containerId) {
@@ -43,7 +44,6 @@ function addTextbox(containerId) {
     var textboxDiv = document.createElement('div');
     textboxDiv.type = 'div';
     textboxDiv.classList.add("textbox-container-with-")
-    var newImagebox = document.createElement('textarea');
 
     var imageDiv = document.createElement('div');
     imageDiv.type = 'div';
@@ -51,13 +51,14 @@ function addTextbox(containerId) {
 
     var moreImagesButton = document.createElement('button')
     moreImagesButton.type = 'button'
-    moreImagesButton.title = 'add images to this scene, more is better, up to 5 for now'
+    moreImagesButton.title = 'optionally add url of images to this scene, more is better, up to 5 for now, order matters. Or add none and get them all generated'
     moreImagesButton.textContent = '+ image'
     moreImagesButton.onclick = (event) => {
         if(event.target.parentElement.getElementsByClassName("image-textarea").length < 5) {
             var newImagebox = document.createElement('textarea');
             newImagebox.classList.add("image-textarea")
-
+            newImagebox.style.height = "10px"
+            newImagebox.title = "url of your image"
             imageDiv.appendChild(newImagebox);
         }
     }
@@ -65,7 +66,7 @@ function addTextbox(containerId) {
 
     var lessImagesButton = document.createElement('button')
     lessImagesButton.type = 'button'
-    lessImagesButton.title = 'removes images from this scene, up to 5 for now'
+    lessImagesButton.title = 'removes last image from this scene'
     lessImagesButton.textContent = '- image'
     lessImagesButton.onclick = (event) => {
         if(event.target.parentElement.getElementsByClassName("image-textarea").length > 0) {
@@ -75,9 +76,16 @@ function addTextbox(containerId) {
     }
     imageDiv.appendChild(lessImagesButton)
     
+    var newSceneTime = document.createElement('textarea');
+    newSceneTime.type = 'textarea';
+    newSceneTime.title = 'Amount of time in seconds this scene should be visible for'
+    newSceneTime.classList.add('sceneTime');
     newTextbox.classList.add("sceneTextboxes")
-    newTextbox.style.height = "26px"
-    newImagebox.style.height = "26px"
+    newTextbox.style.height = "26px";
+    newTextbox.style.width = "70%";
+    newSceneTime.style.height = "26px";
+    if(useTts) newSceneTime.style.display = "none";
+    else newSceneTime.style.display = "block";
     newTextbox.oninput = function() {
         this.style.height = "5px";
         this.style.height = (this.scrollHeight)+"px";
@@ -90,6 +98,7 @@ function addTextbox(containerId) {
     textboxDiv.appendChild(newDeleteSceneButton);
     textboxDiv.appendChild(newShuffleButton);
     textboxDiv.appendChild(newTextbox);
+    textboxDiv.appendChild(newSceneTime);
     textboxDiv.appendChild(imageDiv);
     container.appendChild(textboxDiv);
 }
@@ -422,5 +431,21 @@ function collapsibleStuff() {
     });
     coll[i].click()
     coll[i].click()
+    }
+}
+
+function toggleTts(event) {
+    var newSceneTime = document.querySelectorAll(".sceneTime")
+    if(event.currentTarget.textContent == "disable tts")
+    {
+        useTts = false;
+        event.currentTarget.textContent = "enable tts";
+        newSceneTime.forEach(i => i.style.display = "block");
+        // change color too?
+    } else {
+        useTts = true;
+        event.currentTarget.textContent = "disable tts";
+        newSceneTime.forEach(i => i.style.display = "none");
+        // change color too?
     }
 }
