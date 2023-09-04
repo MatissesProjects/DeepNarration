@@ -37,6 +37,7 @@
                 })
                 window.history.pushState("deepnarration.matissetec.dev", "DeepNarration", "/");
                 document.getElementById('additional-text').value = `<@${id}>`;
+                document.getElementById('additional-text-username').value = username;
                 document.getElementById("full-content").removeAttribute('hidden')
             })
             .catch(console.error);
@@ -89,6 +90,7 @@
                     <button onclick="clearAllTextboxes()" type="button" title="clear all the scenes, leaves the number of scenes added">clear all</button>
                     <button onclick="setTo1Scene()" type="button" title="deletes all scenes and adds back just the 1 empty">set to 1 scene</button>
                     <button onclick="toggleTts(event)" type="button" title="(in progress, doesnt work currently) turns off the tts, instead it will be scene descriptions and no added tts, you set scene time">disable tts</button>
+                    <button onclick="toggleImages(event)" type="button" title="insert your own pregenerated images. Currently takes longer but will be fixed later">insert images</button>
                 </div>
                 <div id="scenes-container" name="scenes" class="textbox-container">
                     <script>addTextbox('scenes-container')</script>
@@ -123,6 +125,7 @@
             </div>
             <div id="discordData" hidden="true">
                 <input type="text" id="additional-text" name="additionalText" autocomplete="off" hidden="true">
+                <input type="text" id="additional-text-username" name="additionalTextUsername" autocomplete="off" hidden="true">
             </div>
             <button type="submit" value="Submit">Submit</button>
         </form>

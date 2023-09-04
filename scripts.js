@@ -4,6 +4,7 @@ let INPUT_PAGE = 'inputPage'
 let LOADING_PAGE = 'loadingPage'
 var peakDisplayed = false;
 var useTts = true;
+var useInsertedImages = false;
 
 // Function to add a new textbox dynamically
 function addTextbox(containerId) {
@@ -28,7 +29,7 @@ function addTextbox(containerId) {
         event.target.parentElement.remove()
         getTtsLength()
     }
-    var randomStrings = ['sunset over the ocean silhouette of a city skyline', 'dancing in the rain mystical forest', 'burst of colorful fireworks reflection in a puddle', 'whisper of the wind adventure under the stars', 'hidden treasure in a cave blossoming cherry blossoms', 'person in a chair landscape with mountains', 'still life with fruits abstract artwork', 'vibrant colors of a mesmerizing sunset over the endless expanse of the ocean','captivating silhouette of a bustling city skyline against the backdrop of a setting sun','joyful moments of dancing in the refreshing raindrops, embracing the rhythm of life','enchanted journey through a mystical forest, where ancient secrets whisper through the trees','explosive display of vibrant and dazzling fireworks, painting the night sky with splendor','serene reflection in a crystal-clear puddle, mirroring the world in a moment of tranquility','gentle whisper of the wind, carrying stories and dreams through the rustling leaves','adventurous exploration under the sparkling tapestry of stars, forging unforgettable memories','hidden treasure tucked away in the depths of a mysterious cave, waiting to be discovered','delicate beauty of blossoming cherry blossoms, painting the world with ephemeral hues','thought-provoking abstraction that pushes the boundaries of conventional artwork','intriguing portrait capturing the essence of a person immersed in their thoughts while seated in a chair','majestic landscape adorned with towering mountains, inviting you to embrace the grandeur of nature','captivating still life composition featuring an array of luscious fruits, tantalizing the senses with their vibrant colors and tempting aromas', 'Time-worn pages of an ancient book unraveling mysteries of the past', 'Golden sunrise spreading warmth over a sleepy village', 'Misty foggy morning in a tranquil lake, breaking dawns first light', 'Melody of a songbird ushering a new day in the quiet wilderness', 'Mirage in the desert dancing under the scorching sun', 'Glimpse of an elusive unicorn in the heart of a enchanted glade', 'Symphony of the city, night life pulsating with lights and sounds', 'Peaceful Zen garden nurturing tranquility amidst chaos', 'Twilight sky studded with lanterns, wishes ascending to the stars', 'Peoples first steps on the moon, a moment of triumph and joy', 'Tango of waves and the moonlight, mesmerizing seaside dance', 'Street artist transforming a blank wall into a vibrant canvas', 'Intricate snowflake landing softly, winters unique signature', 'Raw power of a waterfall, natures untamed symphony', 'Journey through the cosmos, stargazing at a nebulas mystical beauty'];
+    var randomStrings = ['sunset over the ocean silhouette of a city skyline', 'dancing in the rain mystical forest', 'burst of colorful fireworks reflection in a puddle', 'whisper of the wind adventure under the stars', 'hidden treasure in a cave blossoming cherry blossoms', 'person in a chair landscape with mountains', 'still life with fruits abstract artwork', 'vibrant colors of a mesmerizing sunset over the endless expanse of the ocean', 'captivating silhouette of a bustling city skyline against the backdrop of a setting sun', 'joyful moments of dancing in the refreshing raindrops, embracing the rhythm of life', 'enchanted journey through a mystical forest, where ancient secrets whisper through the trees', 'explosive display of vibrant and dazzling fireworks, painting the night sky with splendor', 'serene reflection in a crystal-clear puddle, mirroring the world in a moment of tranquility', 'gentle whisper of the wind, carrying stories and dreams through the rustling leaves', 'adventurous exploration under the sparkling tapestry of stars, forging unforgettable memories', 'hidden treasure tucked away in the depths of a mysterious cave, waiting to be discovered', 'delicate beauty of blossoming cherry blossoms, painting the world with ephemeral hues', 'thought-provoking abstraction that pushes the boundaries of conventional artwork', 'intriguing portrait capturing the essence of a person immersed in their thoughts while seated in a chair', 'majestic landscape adorned with towering mountains, inviting you to embrace the grandeur of nature', 'captivating still life composition featuring an array of luscious fruits, tantalizing the senses with their vibrant colors and tempting aromas', 'Time-worn pages of an ancient book unraveling mysteries of the past', 'Golden sunrise spreading warmth over a sleepy village', 'Misty foggy morning in a tranquil lake, breaking dawns first light', 'Melody of a songbird ushering a new day in the quiet wilderness', 'Mirage in the desert dancing under the scorching sun', 'Glimpse of an elusive unicorn in the heart of a enchanted glade', 'Symphony of the city, night life pulsating with lights and sounds', 'Peaceful Zen garden nurturing tranquility amidst chaos', 'Twilight sky studded with lanterns, wishes ascending to the stars', 'Peoples first steps on the moon, a moment of triumph and joy', 'Tango of waves and the moonlight, mesmerizing seaside dance', 'Street artist transforming a blank wall into a vibrant canvas', 'Intricate snowflake landing softly, winters unique signature', 'Raw power of a waterfall, natures untamed symphony', 'Journey through the cosmos, stargazing at a nebulas mystical beauty', 'Sunlight filtering through swaying palm leaves on a tropical beach', 'Historic sailboat navigating choppy waters during a storm at sea', 'Majestic eagle soaring high above snow-capped mountain peaks', 'Hot air balloons floating gracefully over a vibrant autumn landscape', 'Delicate butterfly wings shimmering with vivid colors and intricate patterns', 'Ancient ruins blanketed in emerald moss, echoing with forgotten stories', 'Sun-bleached bones of an old shipwreck peeking through ocean waves'];
     var newShuffleButton = document.createElement('button');
     newShuffleButton.type = 'button';
     newShuffleButton.title = "add random text to this scene"
@@ -47,7 +48,7 @@ function addTextbox(containerId) {
 
     var imageDiv = document.createElement('div');
     imageDiv.type = 'div';
-    imageDiv.classList.add("image-container-+")
+    imageDiv.classList.add("image-container-plus")
 
     var moreImagesButton = document.createElement('button')
     moreImagesButton.type = 'button'
@@ -75,6 +76,14 @@ function addTextbox(containerId) {
         }
     }
     imageDiv.appendChild(lessImagesButton)
+    var themeSelection = document.createElement('select')
+    themeSelection.classList.add("themeSelection");
+    themeSelection.title = "add extra information to your prompts automatically with these addons"
+    createOption(themeSelection, "None");
+    createOption(themeSelection, "Wild");
+    createOption(themeSelection, "Fun");
+    createOption(themeSelection, "Strange");
+    themeSelection.value = 'None';
     
     var newSceneTime = document.createElement('textarea');
     newSceneTime.type = 'textarea';
@@ -83,9 +92,14 @@ function addTextbox(containerId) {
     newTextbox.classList.add("sceneTextboxes")
     newTextbox.style.height = "26px";
     newTextbox.style.width = "70%";
+    themeSelection.style.width = "3%"
+    themeSelection.style.height = "26px";
+    newSceneTime.style.width = "5%"
     newSceneTime.style.height = "26px";
     if(useTts) newSceneTime.style.display = "none";
     else newSceneTime.style.display = "block";
+    if(useInsertedImages) imageDiv.style.display = "block";
+    else imageDiv.style.display = "none";
     newTextbox.oninput = function() {
         this.style.height = "5px";
         this.style.height = (this.scrollHeight)+"px";
@@ -98,9 +112,17 @@ function addTextbox(containerId) {
     textboxDiv.appendChild(newDeleteSceneButton);
     textboxDiv.appendChild(newShuffleButton);
     textboxDiv.appendChild(newTextbox);
+    textboxDiv.appendChild(themeSelection);
     textboxDiv.appendChild(newSceneTime);
     textboxDiv.appendChild(imageDiv);
     container.appendChild(textboxDiv);
+}
+
+function createOption(themeSelection, optionValue) {
+    var option = document.createElement("option");
+    option.value = optionValue;
+    option.textContent = optionValue;
+    themeSelection.appendChild(option);
 }
 
 function clearAllTextboxes() {
@@ -164,6 +186,16 @@ function getTtsLength() {
 function submitForm(event) {
     event.preventDefault(); // Prevent the default form submission
     var discordName = document.querySelector("#additional-text").value
+    var discordUsername = document.querySelector("#additional-text-username").value
+    var themes = []
+    document.querySelectorAll(".themeSelection").forEach(i => {
+        themes.push(i.value);
+    })
+    var ttsTimings = []
+    document.querySelectorAll(".sceneTime").forEach(i => {
+        if(i.value === "") ttsTimings.push(-1);
+        else ttsTimings.push(parseFloat(i.value))
+    })
     var scenesTextboxes = document.querySelectorAll("textarea.sceneTextboxes")
     var images = []
     document.querySelectorAll(".textbox-container-with-").forEach(i => {
@@ -182,78 +214,96 @@ function submitForm(event) {
             togglePeakDetectionFun()
             break;
         case 'Submit':
-            navagate(LOADING_PAGE)
-            processAudio().then( () => {
-                setTimeout(() => {
-                    var strength;
-                    var soundOutput;
-                    strength = '0:('+document.querySelector("#strength").value+')'
-                    soundOutput = document.getElementById('output').textContent;
-                    navagate(VIDEO_PAGE)
-                
-                    if(peakDisplayed) strength = soundOutput
-                    console.log(strength);
-                    Promise.resolve(audioDuration).then( duration => {
-                        imagesForms = []
-                        scenesTextboxes.forEach(textbox => {
-                            var promptData = textbox.value.replaceAll('"', '').replaceAll("'", '').replaceAll('\n', '')
-                            var formData = {
-                                prompt: promptData
-                            };
-                            index++
-                            positivePrompt.push(`"${index}": "${promptData}"`)
-                            imagesForms.push(formData)
-                        });
-                        // check if there was an uploaded audio file
-                        audioFileName = ''
-                        if(document.querySelector("#audioFile").files.length > 0) {
-                            uploadAudio(document.querySelector("#audioFile").files[0])
-                            audioFileName = document.querySelector("#audioFile").files[0].name
-                        }
-                        // if images are filled
-                        // add them to job
-                        if(document.querySelector(".image-textarea")){
-                            let job ={  imagePrompts: imagesForms,
-                                images:images,
-                                discordName: discordName,
-                                strength: strength,
-                                audioName: audioFileName}
-                            // promises.push(
-                                getVideo(job, useDummy)
-                                    .then(response => {
-                                        console.log(response);
-                                    })
-                                    .catch(error => console.error(error));
-                                    //);
-                        } else {
-                            let job ={  imagePrompts: imagesForms,
-                                discordName: discordName,
-                                strength: strength,
-                                audioName: audioFileName}
-                            // promises.push(
-                                getImagesVideo(job, useDummy)
-                                    .then(response => {
-                                        console.log(response);
-                                        imagesData.push(response)
-                                    })
-                                    .catch(error => console.error(error))
-                                    // );
-                        }
-                        
+            var success = formValidation();
+            if(success) {
+                navagate(LOADING_PAGE)
+                processAudio().then( () => {
+                    setTimeout(() => {
+                        var strength;
+                        var soundOutput;
+                        strength = '0:('+document.querySelector("#strength").value+')'
+                        soundOutput = document.getElementById('output').textContent;
+                        navagate(VIDEO_PAGE)
+                    
+                        if(peakDisplayed) strength = soundOutput
+                        console.log(strength);
+                        Promise.resolve(audioDuration).then( duration => {
+                            imagesForms = []
+                            scenesTextboxes.forEach(textbox => {
+                                var promptData = textbox.value.replaceAll('"', '').replaceAll("'", '').replaceAll('\n', '')
+                                var formData = {
+                                    prompt: promptData
+                                };
+                                index++
+                                positivePrompt.push(`"${index}": "${promptData}"`)
+                                imagesForms.push(formData)
+                            });
+                            // check if there was an uploaded audio file
+                            audioFileName = ''
+                            if(document.querySelector("#audioFile").files.length > 0) {
+                                uploadAudio(document.querySelector("#audioFile").files[0])
+                                audioFileName = document.querySelector("#audioFile").files[0].name
+                            }
 
-                        var time = index * 6 + duration * 17
-                        // startVideoMessage(time)
-                        document.querySelector("#resultTime").textContent = `Generation should be done by ${Math.floor(time/60)} minutes and ${Math.floor(time - Math.floor(time/60)*60)} seconds.`
-                        time = duration
-                        document.querySelector("#sceneLengthEstimate").textContent = `Final results should be about ${Math.floor(time/60)} minutes and ${Math.floor(time - Math.floor(time/60)*60)} seconds.`
-                    });
-                }, 1500);
-            }).catch(error => {
-                console.error('Error in processAudio:', error);
-                // Handle the error, perhaps show a user-friendly message.
-            });
+                            // if images are filled
+                            // add them to job
+                            let job ={ 
+                                imagePrompts: imagesForms,
+                                discordName: discordName,
+                                strength: strength,
+                                audioName: audioFileName,
+                                discordUsername: discordUsername,
+                                themes: themes,
+                                ttsTimings: ttsTimings,
+                                useTts: useTts
+                            }
+                            if(document.querySelector(".image-textarea")) {
+                                    job['images']=images
+                                    getVideo(job, useDummy)
+                                        .then(response => {
+                                            console.log(response);
+                                        })
+                                        .catch(error => console.error(error));
+                            } else {
+                                    getImagesVideo(job, useDummy)
+                                        .then(response => {
+                                            console.log(response);
+                                            imagesData.push(response)
+                                        })
+                                        .catch(error => console.error(error))
+                            }
+                            
+
+                            var time = index * 6 + duration * 17
+                            // startVideoMessage(time)
+                            document.querySelector("#resultTime").textContent = `Generation should be done by ${Math.floor(time/60)} minutes and ${Math.floor(time - Math.floor(time/60)*60)} seconds.`
+                            time = duration
+                            document.querySelector("#sceneLengthEstimate").textContent = `Final results should be about ${Math.floor(time/60)} minutes and ${Math.floor(time - Math.floor(time/60)*60)} seconds.`
+                        });
+                    }, 1500);
+                }).catch(error => {
+                    console.error('Error in processAudio:', error);
+                    // Handle the error, perhaps show a user-friendly message.
+                });
+            }
             break;
     }
+}
+// if there are any images set, and a different scene doesnt have images this should fail for now
+// we dont catch this case yet.
+function formValidation() {
+    var success = true;
+    document.querySelectorAll(".textbox-container-with-")
+    document.querySelectorAll("textarea").forEach(x => {
+        if (parseFloat(x.value.length) > 0) {
+            x.style.backgroundColor = 'black';
+        }
+        else {
+            x.style.backgroundColor = 'red';
+            success = false;
+        }
+    });
+    return success;
 }
 
 function downloadTTSVoice(formData) {
@@ -445,6 +495,22 @@ function toggleTts(event) {
     } else {
         useTts = true;
         event.currentTarget.textContent = "disable tts";
+        newSceneTime.forEach(i => i.style.display = "none");
+        // change color too?
+    }
+}
+
+function toggleImages(event) {
+    var newSceneTime = document.querySelectorAll(".image-container-plus")
+    if(event.currentTarget.textContent == "insert images")
+    {
+        useInsertedImages = true;
+        event.currentTarget.textContent = "generate all images";
+        newSceneTime.forEach(i => i.style.display = "block");
+        // change color too?
+    } else {
+        useInsertedImages = false;
+        event.currentTarget.textContent = "insert images";
         newSceneTime.forEach(i => i.style.display = "none");
         // change color too?
     }

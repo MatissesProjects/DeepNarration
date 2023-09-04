@@ -1,4 +1,4 @@
-from flask import Flask, redirect
+from flask import Flask, redirect, send_file
 
 app = Flask(__name__)
 
@@ -75,6 +75,10 @@ async def home():
 
 </html>
 """
+
+@app.get("/.well-known/discord")
+async def discord():
+    return send_file("C:\\Users\\matis\\GitHub\\DeepNarration\\.well-known\\discord")
 
 @app.get("/auth/discord")
 async def authed():
