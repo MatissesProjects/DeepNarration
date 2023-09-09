@@ -1,10 +1,4 @@
-from flask import Flask, redirect, send_file
-
-app = Flask(__name__)
-
-@app.get("/")
-async def home():
-    return """<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 
 <head>
@@ -64,7 +58,7 @@ async def home():
     </div>
     <div class="wrapper-buttons">
         <a id="login" class="blue-button"
-            href="https://discord.com/api/oauth2/authorize?client_id=1142575897753440288&redirect_uri=http%3A%2F%2Fdeepnarrationlogin.matissetec.dev%2Fauth%2Fdiscord&response_type=token&scope=identify">
+            href="https://discord.com/api/oauth2/authorize?client_id=1142575897753440288&redirect_uri=https%3A%2F%2Fdeepnarration.matissetec.dev%2F&response_type=token&scope=identify">
             Login with Discord
         </a>
     </div>
@@ -72,16 +66,4 @@ async def home():
         <p>There will be a link to the discord to grab the final video from on the page after you submit the video</p>
     </div>
 </body>
-
 </html>
-"""
-
-@app.get("/.well-known/discord")
-async def discord():
-    return send_file("C:\\Users\\matis\\GitHub\\DeepNarration\\.well-known\\discord")
-
-@app.get("/auth/discord")
-async def authed():
-    return redirect("https://deepnarration.matissetec.dev/")
-
-app.run(debug=True, host="0.0.0.0", port=53134)

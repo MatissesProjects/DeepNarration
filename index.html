@@ -7,14 +7,13 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description" content="A generative ai video creation tool.">
     <script>
+        const fragment = new URLSearchParams(window.location.hash.slice(1));
+        const [accessToken, tokenType] = [fragment.get('access_token'), fragment.get('token_type')];
+
+        if (!accessToken) {
+            window.location.href = '/login.html'
+        }
         window.onload = () => {
-            const fragment = new URLSearchParams(window.location.hash.slice(1));
-            const [accessToken, tokenType] = [fragment.get('access_token'), fragment.get('token_type')];
-
-            if (!accessToken) {
-                window.location.href = 'https://deepnarrationlogin.matissetec.dev/'
-            }
-
             fetch('https://discord.com/api/users/@me', {
             headers: {
                 authorization: `${tokenType} ${accessToken}`,
