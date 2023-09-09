@@ -59,6 +59,7 @@ function addTextbox(containerId) {
             var newImagebox = document.createElement('textarea');
             newImagebox.classList.add("image-textarea")
             newImagebox.style.height = "10px"
+            newImagebox.style.width = "100%"
             newImagebox.title = "url of your image"
             imageDiv.appendChild(newImagebox);
         }
@@ -293,13 +294,14 @@ function submitForm(event) {
 // we dont catch this case yet.
 function formValidation() {
     var success = true;
-    document.querySelectorAll(".textbox-container-with-")
+    // document.querySelectorAll(".textbox-container-with-")
     document.querySelectorAll("textarea").forEach(x => {
-        if (parseFloat(x.value.length) > 0) {
-            x.style.backgroundColor = 'black';
+        if (parseFloat(x.value.length) > 0 || x.style.display ==="none") {
+            x.style.backgroundColor = '';
         }
         else {
             x.style.backgroundColor = 'red';
+            // if one of useTts useInsertedImages use case to ignore adding check
             success = false;
         }
     });

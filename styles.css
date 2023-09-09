@@ -116,7 +116,7 @@ button:hover, a:hover {
 
 input {
     display: block;
-    width: 100%;
+    /* width: 100%; */
     padding: 10px;
     border: none;
     border-radius: 10px;
@@ -149,7 +149,7 @@ video {
     text-align: left;
     outline: none;
     font-size: 15px;
-  }
+}
   
 .active, .collapsible:hover {
     background-color: #555;
@@ -190,3 +190,45 @@ button.collapsible {
     white-space: nowrap;
     z-index: 1000;
 }
+
+.image-container-plus {
+    width: 40%;
+    margin-right: 2%;
+}
+
+/* .sceneTime {
+    max-width: 5%;
+}
+
+.sceneTextboxes {
+    width: 90%;
+}
+
+.scene-entry-data {
+    width: 60%;
+}
+
+#availableDataLabels {
+    display:flex;
+}
+
+#labelOne {
+    margin-right: 3%;
+}
+
+#labelTwo {
+    margin-left: 20%;
+    margin-right: 20%;
+}
+
+#labelThree {
+    margin-left:7%;
+}
+
+#labelFour {
+    margin-left:7%;
+}
+
+#labelFive {
+    margin-left:13%;
+} */

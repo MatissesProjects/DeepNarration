@@ -92,22 +92,22 @@
                     <button onclick="toggleTts(event)" type="button" title="(in progress, doesnt work currently) turns off the tts, instead it will be scene descriptions and no added tts, you set scene time">disable tts</button>
                     <button onclick="toggleImages(event)" type="button" title="insert your own pregenerated images. Currently takes longer but will be fixed later">insert images</button>
                 </div>
+                <!-- <div id="availableDataLabels">
+                    <h3 id="labelOne">Scene control</h3>
+                    <h3 id="labelTwo">Scene Data and tts</h3>
+                    <h3 id="labelThree">Style</h3>
+                    <h3 id="labelFour" style="display: none;">Tts timing</h3>
+                    <h3 id="labelFive" style="display: none;">Images</h3>
+                </div> -->
                 <div id="scenes-container" name="scenes" class="textbox-container">
                     <script>addTextbox('scenes-container')</script>
                 </div>
-                <!-- <div>
-                    <label for="images">Images:</label>
-                    <div id="images-container" class="textbox-container">
-                        <script>addTextbox('images-container')</script>
-                    </div>
-                    <button onclick="addTextbox('images-container')" type="button">+</button>
-                </div> -->
             </div>
             <div>
                 <button type="submit" id="peakButton" value="Enable peak detection for strength" title="this will use audio input for the strength value, fun for audio matching a clip">Enable peak detection for strength</button>
             </div>
-            <div id="strengthDiv">
-                <label for="strength" title="strength is the amount the next frame is similar to the current, 0 is random, 1 is exact same.">Strength value:</label>
+            <div id="strengthDiv" title="strength is the amount the next frame is similar to the current, 0 is random, 1 is exact same.">
+                <label for="strength">Strength value:</label>
                 <input type="number" id="strength" step="0.01" value=".70" max="1" min="0"><br>
             </div>
             <div id="peakDetection" style="display: none;">
