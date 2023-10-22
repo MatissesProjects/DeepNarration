@@ -3,6 +3,7 @@ let VIDEO_PAGE = 'videoPage'
 let INPUT_PAGE = 'inputPage'
 let MEME_PAGE = 'memePage'
 let DEPTH_PAGE = 'depth-view'
+let BONE_PAGE = 'bonemap-view'
 let LOADING_PAGE = 'loadingPage'
 var peakDisplayed = false;
 var useTts = true;
@@ -173,12 +174,14 @@ function navagate(page) {
     let sceneInputPage = document.getElementById("myForm")
     let memeInputPage = document.getElementById("meme-view")
     let depthInputPage = document.getElementById("depth-view")
+    let boneInputPage = document.getElementById("bonemap-view")
     let videoOutputPage = document.getElementById("videoPage")
     let loaderPage = document.getElementById("loadingPage")
     let pageMap = {}
     pageMap[INPUT_PAGE] = sceneInputPage
     pageMap[MEME_PAGE] = memeInputPage
     pageMap[DEPTH_PAGE] = depthInputPage
+    pageMap[BONE_PAGE] = boneInputPage
     pageMap[VIDEO_PAGE] = videoOutputPage
     pageMap[LOADING_PAGE] = loaderPage
     hideList = Object.keys(pageMap).filter((value) => value != page)

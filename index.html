@@ -53,7 +53,7 @@
         <button class="menu-item" onclick="toggleView(['txt2vid'])">Pictures to Video Story</button>
         <button class="menu-item" onclick="toggleView(['meme-view'])">Create Single Meme image</button>
         <button class="menu-item" onclick="toggleView(['depth-view'])">Calculate Depthmap from video</button>
-        <button class="menu-item" onclick="toggleView(['bonemap'])">Calculate Bonemap from video</button>
+        <button class="menu-item" onclick="toggleView(['bonemap-view'])">Calculate Bonemap from video</button>
     </div>
     <br>
     <div class="collapseMe" id="txt2vid" hidden="true">
@@ -161,12 +161,6 @@
                     Text: <textarea id="textInput" rows="4" cols="30" oninput="updateText()">YourTextHere</textarea><br>
                     Size: <input type="number" id="textSize" value="40" min="10" max="300" oninput="updateText()"><br>
                     Rotation: <input type="number" id="textRotation" value="0" min="-360" max="360" oninput="updateText()"> degrees<br>
-                    Boldness: 
-                    <select id="textBoldness" onchange="updateText()">
-                        <option value="normal">Normal</option>
-                        <option value="bold">Bold</option>
-                        <option value="bolder">Bolder</option>
-                    </select><br>
                     Font: 
                     <select id="fontSelection" onchange="updateText()">
                         <!-- Filled dynamically with JavaScript -->
@@ -241,7 +235,7 @@
                     function updateText() {
                         const text = document.getElementById('textInput').value;
                         const size = document.getElementById('textSize').value;
-                        const boldness = document.getElementById('textBoldness').value;
+                        const boldness = 'bolder';
                         const font = fontSelection.value;
                         const rotation = document.getElementById('textRotation').value; // Get the rotation angle
 
@@ -342,6 +336,22 @@
         <form id="depthMapForm" onsubmit="depthMapViewSumbitForm(event)" class="page">
             <div class="collapseMe" id="uploadVideoDepth">
                 <p>Select a video to create a depth map from</p>
+                <input type="file" id="videoFile" accept="video/*"><br>
+                <p id="output" hidden="true">Upload a file to start...</p>
+            </div>
+        </form>
+    </div>
+
+    <div class="collapseMe" id="bonemap-view" hidden="true">
+        <div>
+            <h1>Bone extraction for video mask creator</h1>
+        </div>
+        <div>
+            <button onclick="toggleView(['uploadVideoBone', 'bonemap-view'])">Upload a video to mask</button>
+        </div>
+        <form id="boneMapForm" onsubmit="boneMapViewSumbitForm(event)" class="page">
+            <div class="collapseMe" id="uploadVideoBone">
+                <p>Select a video to create a bone map from</p>
                 <input type="file" id="videoFile" accept="video/*"><br>
                 <p id="output" hidden="true">Upload a file to start...</p>
             </div>
