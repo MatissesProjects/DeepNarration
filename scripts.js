@@ -1,6 +1,8 @@
 let maxWords = 75;
 let VIDEO_PAGE = 'videoPage'
 let INPUT_PAGE = 'inputPage'
+let MEME_PAGE = 'memePage'
+let DEPTH_PAGE = 'depth-view'
 let LOADING_PAGE = 'loadingPage'
 var peakDisplayed = false;
 var useTts = true;
@@ -119,6 +121,33 @@ function addTextbox(containerId) {
     container.appendChild(textboxDiv);
 }
 
+function toggleView(idsToShow) {
+    // Select all elements with the class 'collapseMe'
+    var collapsables = document.querySelectorAll(".collapseMe");
+
+    // Hide all the collapsable elements
+    collapsables.forEach(element => {
+        element.hidden = true;
+    });
+
+    // Show only the elements whose IDs are specified in the 'idsToShow' array
+    idsToShow.forEach(idToShow => {
+        var elem = document.getElementById(idToShow);
+        if (elem) {
+            elem.hidden = false; // Show the element
+        }
+    });
+}
+
+function memeViewSumbitForm(event) {
+    event.preventDefault();
+    // console.log(`hideList: ${hideList}`)
+
+    console.log(`meme started`)
+    // navagate('loadingPage')
+    toggleView();
+}
+
 function createOption(themeSelection, optionValue) {
     var option = document.createElement("option");
     option.value = optionValue;
@@ -142,10 +171,14 @@ function setTo1Scene() {
 
 function navagate(page) {
     let sceneInputPage = document.getElementById("myForm")
+    let memeInputPage = document.getElementById("meme-view")
+    let depthInputPage = document.getElementById("depth-view")
     let videoOutputPage = document.getElementById("videoPage")
     let loaderPage = document.getElementById("loadingPage")
     let pageMap = {}
     pageMap[INPUT_PAGE] = sceneInputPage
+    pageMap[MEME_PAGE] = memeInputPage
+    pageMap[DEPTH_PAGE] = depthInputPage
     pageMap[VIDEO_PAGE] = videoOutputPage
     pageMap[LOADING_PAGE] = loaderPage
     hideList = Object.keys(pageMap).filter((value) => value != page)
@@ -192,10 +225,10 @@ function submitForm(event) {
     document.querySelectorAll(".themeSelection").forEach(i => {
         themes.push(i.value);
     })
-    var ttsTimings = []
+    var sceneTimings = []
     document.querySelectorAll(".sceneTime").forEach(i => {
-        if(i.value === "") ttsTimings.push(-1);
-        else ttsTimings.push(parseFloat(i.value))
+        if(i.value === "") sceneTimings.push(-1);
+        else sceneTimings.push(parseFloat(i.value))
     })
     var scenesTextboxes = document.querySelectorAll("textarea.sceneTextboxes")
     var images = []
@@ -255,7 +288,7 @@ function submitForm(event) {
                                 audioName: audioFileName,
                                 discordUsername: discordUsername,
                                 themes: themes,
-                                ttsTimings: ttsTimings,
+                                ttsTimings: sceneTimings,
                                 useTts: useTts
                             }
                             if(document.querySelector(".image-textarea")) {
@@ -274,7 +307,6 @@ function submitForm(event) {
                                         .catch(error => console.error(error))
                             }
                             
-
                             var time = index * 6 + duration * 17
                             // startVideoMessage(time)
                             document.querySelector("#resultTime").textContent = `Generation should be done by ${Math.floor(time/60)} minutes and ${Math.floor(time - Math.floor(time/60)*60)} seconds.`
@@ -362,6 +394,23 @@ function uploadAudio(file) {
     });
 }
 
+function truncateAudioBuffer(buffer, audioContext, newLength) {
+    let numberOfChannels = buffer.numberOfChannels;
+    let newBuffer = audioContext.createBuffer(
+      numberOfChannels,
+      newLength * buffer.sampleRate,
+      buffer.sampleRate
+    );
+    
+    for (let channel = 0; channel < numberOfChannels; channel++) {
+      let oldData = buffer.getChannelData(channel);
+      let newData = newBuffer.getChannelData(channel);
+      newData.set(oldData.subarray(0, newLength * buffer.sampleRate));
+    }
+    
+    return newBuffer;
+}
+
 function processAudio() {
     return new Promise((resolve, reject) => { 
         if(!peakDisplayed)
@@ -389,12 +438,23 @@ function processAudio() {
         reader.onload = function(ev) {
             audioContext.decodeAudioData(ev.target.result)
             .then(audioBuffer => {
+                // let truncatedBuffer = audioBuffer
+                // if(useTts) {
+                //     audioDuration = downloadTTSVoice({promptDataString:textToSay})
+                //     truncatedBuffer = truncateAudioBuffer(audioBuffer, audioContext, audioDuration);
+                // } else {
+                //     truncatedBuffer = truncateAudioBuffer(audioBuffer, audioContext, Math.ceil((textToSay.split(" ").length-1)/200*60*11.5)*10);
+                // }
+                // console.log("audioDuration: ", audioDuration);
+                // console.log("audioBuffer length: ", audioBuffer.length);
+                // console.log("audioBuffer sampleRate: ", audioBuffer.sampleRate);
+                // console.log("audioBuffer length: ", truncatedBuffer.length);
+                // console.log("audioBuffer sampleRate: ", truncatedBuffer.sampleRate);
                 source.buffer = audioBuffer;
                 console.log('source length: ' + source.buffer.duration)
                 console.log(textToSay);
                 console.log(Math.ceil((textToSay.split(" ").length-1)/200*60*11.5));
                 let peaks = detectPeaks(audioBuffer, Math.ceil((textToSay.split(" ").length-1)/200*60*11.5), minDesired, maxDesired);
-                console.log((Math.max(peaks) -Math.min(peaks))/2);
                 let output = processPeaks(peaks);
                 document.getElementById('output').textContent = output;
                 resolve(); // Resolve the promise here

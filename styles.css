@@ -22,14 +22,14 @@ body {
     color: var(--text-color); /* Dark Grey */
 }
 
-.full-content {
+.txt2vid {
     display: none;
 }
 
 h1 {
     color: rgb(111, 193, 254);
     margin: 5px 0px;
-    float: left;
+    /* float: left; */
 }
 
 button {
@@ -53,6 +53,11 @@ button {
 #howToSection {
     display: flex; 
     flex-direction: column
+}
+
+.menu-item {
+    background-color: #777 !important   ;
+    margin-bottom: 10px;
 }
 
 .textbox-container-with- {
@@ -172,6 +177,7 @@ button.collapsible {
     position: relative;
     display: inline-block;
     cursor: help;
+    color:#ccc;
 }
 
 .tooltip:hover::after {
@@ -196,6 +202,13 @@ button.collapsible {
     margin-right: 2%;
 }
 
+#jobTypeSelector {
+    margin: 20px;
+}
+
+#canvas {
+    border: 1px solid white;
+}
 /* .sceneTime {
     max-width: 5%;
 }

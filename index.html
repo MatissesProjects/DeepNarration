@@ -6,6 +6,8 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description" content="A generative ai video creation tool.">
+    <script src="localVariables.js"></script>
+    <script src="scripts.js"></script>
     <script>
         const fragment = new URLSearchParams(window.location.hash.slice(1));
         const [accessToken, tokenType] = [fragment.get('access_token'), fragment.get('token_type')];
@@ -37,7 +39,7 @@
                 window.history.pushState("deepnarration.matissetec.dev", "DeepNarration", "/");
                 document.getElementById('additional-text').value = `<@${id}>`;
                 document.getElementById('additional-text-username').value = username;
-                document.getElementById("full-content").removeAttribute('hidden')
+                document.getElementById("txt2vid").removeAttribute('hidden')
             })
             .catch(console.error);
         };
@@ -47,14 +49,18 @@
     <link rel="stylesheet" type="text/css" href="styles.css">
 </head>
 <body>
-    <div id="full-content" hidden="true">
+    <div id="jobTypeSelector">
+        <button class="menu-item" onclick="toggleView(['txt2vid'])">Pictures to Video Story</button>
+        <button class="menu-item" onclick="toggleView(['meme-view'])">Create Single Meme image</button>
+        <button class="menu-item" onclick="toggleView(['depth-view'])">Calculate Depthmap from video</button>
+        <button class="menu-item" onclick="toggleView(['bonemap'])">Calculate Bonemap from video</button>
+    </div>
+    <br>
+    <div class="collapseMe" id="txt2vid" hidden="true">
         <form id="myForm" class="page" onsubmit="submitForm(event)">
             <div id="howToSection">
                 <button type="button" class="collapsible">Open How To Use</button>
                 <div class="content">
-                    <h1>How To Use</h1>
-                    <br>
-                    <br>
                     <p>Add a few scenes and enter a story for them, a <span class="tooltip" title="TTS stands for Text-to-Speech. It's a technology that converts written text into spoken voice output.">TTS</span> will be speaking them back, for now no voice controls.</p>
                     <p>If you want to remove a scene hit the - next to it</p>
                     <p>Run the process by clicking submit.</p>
@@ -64,9 +70,6 @@
                 </div>
                 <button type="button" class="collapsible">Open Suggestion</button>
                 <div class="content">
-                    <h1>Suggestion</h1>
-                    <br>
-                    <br>
                     <p>Any part you want to see a specific image of, make it its own scene the more descriptive the better</p>
                     <p>You can use the auto generated scenes, but they are pretty random.</p>
                     <p>A way to come up with a story is to ask for a short 3-6 scene story from <a href="https://claude.ai/">claude.ai</a> you want the scenes to be 75 words max</p>
@@ -74,9 +77,6 @@
                 </div>
                 <button type="button" class="collapsible">Open Notes</button>
                 <div class="content">
-                    <h1>Notes</h1>
-                    <br>
-                    <br>
                     <p>now using dreamsharperxl10alpha2 and SD XL 1.0 refined for the deforum run</p>
                     <p>The system currently has only 1 node running the API with limited queing, so if someone else is using it the generation start after theirs is done</p>
                 </div>
@@ -139,6 +139,213 @@
         <div id="loadingPage" class="page hidden" hidden="true">
             <div class="loader"></div>
         </div>
+    </div>
+
+    <div class="collapseMe" id="meme-view" hidden="true">
+        <div>
+            <h1>Meme image creator</h1>
+        </div>
+        <div>
+            <button onclick="toggleView(['uploadMask', 'meme-view'])">Upload an image mask</button>
+            <button onclick="toggleView(['createMask', 'meme-view'])">create an text mask</button>
+        </div>
+        <form id="memeViewForm" onsubmit="memeViewSumbitForm(event)" class="page">
+            <div class="collapseMe" id="uploadMask">
+                <p>Select an black and white mask image</p>
+                <input type="file" id="imageFile" accept="image/*"><br>
+                <p id="output" hidden="true">Upload a file to start...</p>
+            </div>
+            <div class="collapseMe" id="createMask">
+                <p>Or create a mask with text here</p>
+                <div>
+                    Text: <textarea id="textInput" rows="4" cols="30" oninput="updateText()">YourTextHere</textarea><br>
+                    Size: <input type="number" id="textSize" value="40" min="10" max="300" oninput="updateText()"><br>
+                    Rotation: <input type="number" id="textRotation" value="0" min="-360" max="360" oninput="updateText()"> degrees<br>
+                    Boldness: 
+                    <select id="textBoldness" onchange="updateText()">
+                        <option value="normal">Normal</option>
+                        <option value="bold">Bold</option>
+                        <option value="bolder">Bolder</option>
+                    </select><br>
+                    Font: 
+                    <select id="fontSelection" onchange="updateText()">
+                        <!-- Filled dynamically with JavaScript -->
+                    </select>
+                    <br>
+                    <p>click to drag text</p>
+                </div>
+                <canvas id="canvas" width="512" height="512"></canvas>
+                <script>
+                    const canvas = document.getElementById('canvas');
+                    const ctx = canvas.getContext('2d');
+                    // let xPos = 'center';
+                    let xPos = canvas.width / 2; // center
+                    let yPos = canvas.height / 2;
+            
+                    const commonFonts = [
+                        "Arial", "Verdana", "Helvetica", "Tahoma", "Trebuchet MS", "Times New Roman", 
+                        "Georgia", "Garamond", "Courier New", "Brush Script MT"
+                    ];
+            
+                    const fontSelection = document.getElementById('fontSelection');
+            
+                    // Try to load each font and add to dropdown if available
+                    commonFonts.forEach(font => {
+                        if (document.fonts.check(`12px ${font}`)) {  // Check if font is available on user's system
+                            const option = document.createElement('option');
+                            option.value = font;
+                            option.innerText = font;
+                            fontSelection.appendChild(option);
+                        }
+                    });
+            
+                    function adjustPosition(dx, dy) {
+                        if (typeof yPos === 'number') yPos += dy;
+                        updateText();
+                    }
+                    function drawText(text, size, boldness, font, x, y, rotation) {
+                        // Clear the canvas
+                        ctx.fillStyle = 'black';
+                        ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+                        // Split text into lines
+                        const lines = text.split('\n');
+                        
+                        // Set the text style
+                        ctx.fillStyle = 'white';
+                        ctx.font = `${boldness} ${size}px ${font}`;
+                        ctx.textBaseline = 'middle';
+                        ctx.textAlign = 'center';
+
+                        // Save the current context state (which has no rotation)
+                        ctx.save();
+
+                        // Translate to the point around which you want to rotate
+                        ctx.translate(x, y);
+
+                        // Rotate the canvas by the specified angle
+                        ctx.rotate(rotation * Math.PI / 180); // Convert degree to radian
+
+                        // Translate back to the top left of your object
+                        ctx.translate(-x, -y);
+
+                        // Draw the text (after the rotation has been applied)
+                        lines.forEach((line, index) => {
+                            ctx.fillText(line, x, y + index * size);
+                        });
+
+                        // Restore the previous context state (removes the rotation)
+                        ctx.restore();
+                    }
+
+                    function updateText() {
+                        const text = document.getElementById('textInput').value;
+                        const size = document.getElementById('textSize').value;
+                        const boldness = document.getElementById('textBoldness').value;
+                        const font = fontSelection.value;
+                        const rotation = document.getElementById('textRotation').value; // Get the rotation angle
+
+                        drawText(text, size, boldness, font, xPos, yPos, rotation);
+                    }
+                
+            
+                    function setPosition(horizontal, vertical) {
+                        const text = document.getElementById('textInput').value;
+                        const size = document.getElementById('textSize').value;
+                        const boldness = document.getElementById('textBoldness').value;
+                        
+                        ctx.font = `${boldness} ${size}px Arial`; // This line is necessary to measure the text width properly.
+                        
+                        const textMetrics = ctx.measureText(text);
+                        const textWidth = textMetrics.width;
+            
+                        if (horizontal === 'center') xPos = canvas.width / 2;
+                        else if (horizontal === 'left') xPos = 0;
+                        else if (horizontal === 'right') xPos = canvas.width - textWidth;
+            
+                        if (vertical === 'middle') yPos = canvas.height / 2;
+                        else if (vertical === 'top') yPos = size;  // assuming size is approximately the text height
+                        else if (vertical === 'bottom') yPos = canvas.height - size;
+            
+                        updateText();
+                    }
+                
+                    // Initialize the canvas with the default values
+                    updateText();
+            
+                    // Drawing logic
+                    let drawing = false;
+            
+                    // canvas.addEventListener('mousedown', () => {
+                    //     drawing = true;
+                    // });
+            
+                    // canvas.addEventListener('mouseup', () => {
+                    //     drawing = false;
+                    //     ctx.beginPath();
+                    // });
+            
+                    // canvas.addEventListener('mousemove', draw);
+            
+                    function saveCanvasAsImage() {
+                        const downloadLink = document.createElement('a');
+                        downloadLink.href = canvas.toDataURL("image/png");  // Convert canvas content to a PNG data URL
+                        downloadLink.download = 'canvas_image.png';         // Suggest a filename for downloaded image
+                        downloadLink.click();                               // Simulate a click to trigger the download
+                    }
+            
+                    let isDragging = false;
+                    let lastMouseX = null;
+                    let lastMouseY = null;
+            
+                    canvas.addEventListener('mousedown', (e) => {
+                        isDragging = true;
+                        lastMouseX = e.clientX;
+                        lastMouseY = e.clientY;
+                    });
+            
+                    canvas.addEventListener('mouseup', () => {
+                        isDragging = false;
+                    });
+            
+                    canvas.addEventListener('mousemove', (e) => {
+                        if (isDragging) {
+                            const deltaX = e.clientX - lastMouseX;
+                            const deltaY = e.clientY - lastMouseY;
+                            
+                            if (typeof xPos === 'number') xPos += deltaX;
+                            if (typeof yPos === 'number') yPos += deltaY;
+            
+                            lastMouseX = e.clientX;
+                            lastMouseY = e.clientY;
+                            
+                            updateText();
+                        }
+                    });
+            
+                    canvas.addEventListener('mouseout', () => {
+                        isDragging = false; // Stop dragging when the mouse exits the canvas
+                    });
+                </script>
+            </div>
+            <button type="submit" value="Submit">testset</button>
+        </form>
+    </div>
+
+    <div class="collapseMe" id="depth-view" hidden="true">
+        <div>
+            <h1>Depth video mask creator</h1>
+        </div>
+        <div>
+            <button onclick="toggleView(['uploadVideoDepth', 'depth-view'])">Upload a video to mask</button>
+        </div>
+        <form id="depthMapForm" onsubmit="depthMapViewSumbitForm(event)" class="page">
+            <div class="collapseMe" id="uploadVideoDepth">
+                <p>Select a video to create a depth map from</p>
+                <input type="file" id="videoFile" accept="video/*"><br>
+                <p id="output" hidden="true">Upload a file to start...</p>
+            </div>
+        </form>
     </div>
 
     <script>
