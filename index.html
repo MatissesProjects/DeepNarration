@@ -53,10 +53,13 @@
         <button class="menu-item" onclick="toggleView(['txt2vid'])">Pictures to Video Story</button>
         <button class="menu-item" onclick="toggleView(['meme-view'])">Create Single Meme image</button>
         <button class="menu-item" onclick="toggleView(['depth-view'])">Calculate Depthmap from video</button>
-        <button class="menu-item" onclick="toggleView(['bonemap-view'])">Calculate Bonemap from video</button>
+        <button class="menu-item" onclick="toggleView(['comfyui-view'])">Comfyui attempt</button>
     </div>
     <br>
     <div class="collapseMe" id="txt2vid" hidden="true">
+        <div>
+            <h1>Text to video</h1>
+        </div>
         <form id="myForm" class="page" onsubmit="submitForm(event)">
             <div id="howToSection">
                 <button type="button" class="collapsible">Open How To Use</button>
@@ -342,6 +345,7 @@
         </form>
     </div>
 
+    
     <div class="collapseMe" id="bonemap-view" hidden="true">
         <div>
             <h1>Bone extraction for video mask creator</h1>
@@ -357,7 +361,22 @@
             </div>
         </form>
     </div>
-
+    
+    <div class="collapseMe" id="comfyui-view" hidden="true">
+        <div>
+            <h1>comfyui view</h1>
+        </div>
+        <div>
+            <button onclick="toggleView(['uploadVideoComfyui', 'comfyui-view'])">Upload a video to mask</button>
+        </div>
+        <form id="comfyuiMapForm" onsubmit="comfyuiMapViewSumbitForm(event)" class="page">
+            <div class="collapseMe" id="uploadVideoComfyui">
+                <p>Select workflow file</p>
+                <input type="file" id="comfyuiFile" accept="js/*"><br>
+                <p id="output" hidden="true">Upload a file to start...</p>
+            </div>
+        </form>
+    </div>
     <script>
         collapsibleStuff()
     </script>
