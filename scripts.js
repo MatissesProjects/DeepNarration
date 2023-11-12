@@ -583,3 +583,22 @@ function toggleImages(event) {
         // change color too?
     }
 }
+
+function comfyuiMapViewSumbitForm(event) {
+    event.preventDefault();
+    var discordUsername = document.querySelector("#additional-text-username").value
+
+    let formData = {
+        "prompt": "person on a waterslide",
+        "targetPicture":"C:/Users/matis/OneDrive/Pictures/spaceCat2.png",
+        "personPicture":"C:/Users/matis/Desktop/images/croppedMatisse/matissetec outside on a bench close up.jpg",
+        discordUsername
+    }
+    return fetch("https://deepnarrationapi.matissetec.dev/startComfyPrompt", {
+        method: "POST",
+        body: JSON.stringify(formData),
+        headers: {
+            "Content-Type": "application/json"
+        }
+    })
+}

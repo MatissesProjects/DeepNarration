@@ -374,8 +374,10 @@
             <div class="collapseMe" id="uploadVideoComfyui">
                 <p>Select workflow file</p>
                 <input type="file" id="comfyuiFile" accept="js/*"><br>
-                <p id="output" hidden="true">Upload a file to start...</p>
+                <label for="targetImage">target image</label><p id="targetImage" hidden="true">Upload a file to start...</p>
+                <label for="personImage">person image</label><p id="personImage" hidden="true">Upload a file to start...</p>
             </div>
+            <button type="submit" value="Submit">Submit</button>
         </form>
     </div>
     <script>
