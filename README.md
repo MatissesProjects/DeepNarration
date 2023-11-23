@@ -1,3 +1,5 @@
+# This is had been archived and will be replaced by https://github.com/vivax3794/deepnarration
+
 # Deep Narration: An AI-Powered Video Generation Tool
 
 ## Description
